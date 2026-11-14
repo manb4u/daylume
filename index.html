@@ -408,6 +408,66 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .padd .plus svg{width:20px;height:20px;stroke:currentColor;stroke-width:2.4}
 /* ===== Small screens only (≤1100px). Everything above this width is the desktop UI and stays untouched. ===== */
 /* Tablet: stacked page — location + now on top, the month below, sun / week / legend after it. */
+/* Narrower desktops: keep the whole header on one row */
+@media (max-width:1439px) and (min-width:1101px){
+  .mode-chip em{display:none}
+  .search input{width:200px}
+}
+@media (max-width:1279px) and (min-width:1101px){
+  header{gap:14px}
+  .brand{width:277px}   /* 28 + 277 + 14 = 319: Today stays on the sidebar divider */
+  .mode-chip{width:38px;padding:0;gap:0;justify-content:center}
+  .mode-chip>span:not(.dot){display:none}
+  .search input{width:170px}
+  .month-title{font-size:22px}
+}
+/* Settings */
+.settings-btn{border:1px solid var(--line);background:var(--surface)}
+.settings-btn svg{width:20px;height:20px}
+.ssheet{width:min(920px,100%);height:min(640px,calc(100vh - 64px));background:var(--surface);border-radius:28px;box-shadow:var(--shadow);display:grid;grid-template-columns:240px minmax(0,1fr);overflow:hidden;transform:translateY(12px) scale(.985);transition:transform .3s}
+.focus.open .ssheet{transform:none}
+.snav{background:var(--bg);border-right:1px solid var(--line);padding:28px 14px;display:flex;flex-direction:column;gap:4px}
+.snav h2{font-size:24px;font-weight:500;letter-spacing:-.01em;padding:0 12px 18px}
+.snav button{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:12px;font-size:15px;font-weight:500;color:var(--muted);text-align:left;transition:background .15s,color .15s;flex-shrink:0}
+.snav button:hover{background:var(--line);color:var(--ink)}
+.snav button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.snav .sh{width:14px;height:14px;flex-shrink:0;display:block}
+.snav .sh.c{border-radius:50%;background:var(--yellow)}.snav .sh.s{background:var(--red)}
+.snav .sh.t{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--blue)}
+.sbody{display:flex;flex-direction:column;min-height:0;min-width:0}
+.shead{display:flex;align-items:flex-start;gap:16px;padding:28px 28px 20px;border-bottom:1px solid var(--line);flex-shrink:0}
+.shead>div{flex:1}
+.shead h3{font-size:32px;font-weight:500;letter-spacing:-.02em;line-height:1.05}
+.shead p{color:var(--muted);font-size:14px;margin-top:8px}
+.sscroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:6px 28px 28px}
+.sgroup{margin-top:22px}
+.sgroup:first-child{margin-top:12px}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 0;border-bottom:1px solid var(--line)}
+.sgroup .srow:last-child{border-bottom:0}
+.srow b{display:block;font-size:15px;font-weight:500}
+.srow small{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+.srow .seg{flex-shrink:0}
+.switch{position:relative;width:46px;height:28px;border-radius:999px;background:var(--line);flex-shrink:0;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--ink)}
+.switch[aria-checked="true"]::after{transform:translateX(18px);background:var(--bg)}
+.palettes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.palette{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--bg);text-align:left;font-size:15px;font-weight:500;transition:box-shadow .15s}
+.palette[aria-checked="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.palette small{display:block;font-size:12px;font-weight:400;color:var(--muted);margin-top:2px}
+.palette .sw{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.palette .sw i{display:block;width:16px;height:16px}
+.palette .sw i:nth-child(1){border-radius:50%}
+.palette .sw i:nth-child(3){width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:16px solid}
+.no-sun .sunarc,.no-week .weekbox,.no-legend .legendbox{display:none}
+.no-motion *,.no-motion *::before,.no-motion *::after{animation:none!important}
+/* Colour palettes (primaries only; tints and greys stay) */
+[data-palette="pastel"],[data-palette="pastel"] [data-theme="light"]{--red:#E8826F;--yellow:#F2C66B;--blue:#6F93D6}
+[data-palette="pastel"] [data-theme="dark"],[data-palette="pastel"][data-theme="dark"]{--red:#F0937F;--yellow:#F5D27E;--blue:#86A6E6}
+[data-palette="mono"],[data-palette="mono"] [data-theme="light"]{--red:#3A3A3A;--yellow:#9A968D;--blue:#62605B}
+[data-palette="mono"] [data-theme="dark"],[data-palette="mono"][data-theme="dark"]{--red:#DAD6CE;--yellow:#A29F98;--blue:#BEBBB3}
+[data-palette="ocean"],[data-palette="ocean"] [data-theme="light"]{--red:#E06A4E;--yellow:#F2B33D;--blue:#1F7A8C}
+[data-palette="ocean"] [data-theme="dark"],[data-palette="ocean"][data-theme="dark"]{--red:#EB7D62;--yellow:#F5C25A;--blue:#3FA3B6}
 @media (max-width:1100px){
   .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:none;
     grid-template-areas:"head head" "loc now" "cal cal" "sun week" "legend legend";height:auto;min-height:100vh}
@@ -451,6 +511,8 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .stats{margin:12px 24px 24px}
   .pgrid{grid-template-columns:1fr 1fr}
   .pcard .tags{flex-wrap:wrap;row-gap:6px}
+  .ssheet{width:100%;grid-template-columns:200px minmax(0,1fr)}
+  .settings-btn{order:3}
   .tag{white-space:nowrap;padding:4px 7px;letter-spacing:.08em}
 }
 /* Narrow tablet: tighter day cells and header */
@@ -534,6 +596,17 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   /* Messages clear the home indicator and never run off screen */
   .toast,.err{bottom:calc(16px + env(safe-area-inset-bottom, 0px));max-width:calc(100% - 32px)}
   .toast{white-space:normal}
+  .ssheet{border-radius:0;height:100vh;height:100dvh;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .snav{flex-direction:row;border-right:0;border-bottom:1px solid var(--line);padding:10px 12px;overflow-x:auto;gap:6px}
+  .snav h2{display:none}
+  .snav button{height:40px}
+  .shead{padding:18px 16px 14px}
+  .shead h3{font-size:26px}
+  .sscroll{padding:4px 16px 24px}
+  .srow{gap:12px}
+  .srow>div:first-child{flex:1;min-width:0}
+  .srow:has(>.seg){flex-wrap:wrap}   /* only the wide segmented controls drop below; switches stay beside the text */
+  .palettes{grid-template-columns:1fr}
 }
 /* Small phones */
 @media (max-width:380px){
@@ -561,15 +634,17 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
     </div>
     <div class="seg" id="unitSeg"><button data-u="C" class="on">°C</button><button data-u="F">°F</button></div>
     <button class="mode-chip" id="modeChip" title="Theme follows sunrise and sunset. Click to override."></button>
+    <button class="icon-btn settings-btn" id="settingsBtn" aria-label="Settings" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="2.4"/><circle cx="12" cy="12" r="2.2" stroke-width="2"/><path d="M12 2.4v3.4M12 18.2v3.4M2.4 12h3.4M18.2 12h3.4M5.21 5.21l2.4 2.4M16.39 16.39l2.4 2.4M5.21 18.79l2.4-2.4M16.39 7.61l2.4-2.4" stroke-width="3.6" stroke-linecap="butt"/></svg></button>
   </header>
   <aside id="side"></aside>
   <main>
-    <div class="dow"><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div></div>
+    <div class="dow" id="dow"><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div></div>
     <div class="grid" id="grid"></div>
   </main>
 </div>
 <div class="focus" id="focus" aria-modal="true" role="dialog"><div class="sheet" id="sheet"></div></div>
 <div class="focus" id="places" aria-modal="true" role="dialog" aria-label="Saved locations"><div class="psheet" id="psheet"></div></div>
+<div class="focus" id="settings" aria-modal="true" role="dialog" aria-label="Settings"><div class="ssheet" id="ssheet"></div></div>
 
 <script>
 (() => {
@@ -589,6 +664,8 @@ const S = {
   view: null, selected: null,
   unit: params.get('unit') || store.get('wc.unit') || 'C',
   themePref: params.get('theme') || (SNAP ? 'auto' : (store.get('wc.theme') || 'auto')),
+  set: Object.assign({ wind:'kmh', time:'24', week:'mon', outlook:true, scenes:true, motion:true, showSun:true, showWeek:true, showLegend:true, palette:'bauhaus' },
+    SNAP ? {} : (store.get('wc.settings') || {})),
 };
 
 const PLACES = { berlin:{name:'Berlin',region:'Germany',lat:52.52,lon:13.405}, tokyo:{name:'Tokyo',region:'Japan',lat:35.6895,lon:139.6917},
@@ -779,7 +856,10 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 const WD = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const tconv = c => S.unit === 'F' ? c*9/5+32 : c;
 const T = c => c == null ? '–' : Math.round(tconv(c)) + '°';
-const hm = iso => iso ? iso.slice(11,16) : '–';
+// Clock time in the chosen format (24-hour or 12-hour)
+const clock = hhmm => { if (S.set.time === '24') return hhmm; const [h, m] = hhmm.split(':').map(Number); return `${h % 12 || 12}:${pad(m)} ${h < 12 ? 'AM' : 'PM'}`; };
+const hm = iso => iso ? clock(iso.slice(11,16)) : '–';
+const windU = kmh => { const k = kmh ?? 0; return S.set.wind === 'mph' ? [Math.round(k*0.621371), 'mph'] : S.set.wind === 'ms' ? [Math.round(k/3.6), 'm/s'] : [Math.round(k), 'km/h']; };
 const localNowIso = () => (SNAP && params.get('at')) ? params.get('at') : S.data ? new Date(Date.now() + S.data.utc_offset_seconds*1000).toISOString().slice(0,16) : null;
 
 /* ---------- Data ---------- */
@@ -870,7 +950,8 @@ async function load(loc){
   const [fc, arch, ens] = await Promise.allSettled([fetchWeather(loc), cached('arch', loc, fetchArchive), cached('ens', loc, fetchEnsemble)]);
   if (fc.status !== 'fulfilled'){ toast('Could not load weather. Check your connection.'); return; }
   S.data = fc.value;
-  S.days = index(S.data, arch.value, ens.value);
+  S.raw = { arch: arch.value, ens: ens.value };
+  S.days = index(S.data, arch.value, S.set.outlook ? ens.value : null);
   if (arch.status !== 'fulfilled' || ens.status !== 'fulfilled') toast(arch.status !== 'fulfilled' ? 'Past-year history is unavailable right now.' : 'The 1-month outlook is unavailable right now.');
   S.todayKey = S.data.current.time.slice(0,10);
   if (!S.view){ const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() };
@@ -909,6 +990,8 @@ function render(){
   $('#monthTitle').innerHTML = `${MONTHS[m]} <span>${y}</span>`;
   $('#prevBtn').disabled = !S.minKey || keyOf(y,m,1) <= S.minKey;
   $('#nextBtn').disabled = !S.maxKey || keyOf(y,m+1,1) > S.maxKey;
+  const dows = ['MON','TUE','WED','THU','FRI','SAT','SUN']; if (S.set.week === 'sun') dows.unshift(dows.pop());
+  $('#dow').innerHTML = dows.map(d => `<div>${d}</div>`).join('');
   document.querySelectorAll('#unitSeg button').forEach(b => b.classList.toggle('on', b.dataset.u === S.unit));
   renderSide(); renderGrid();
   if (S.selected) renderFocus();
@@ -916,7 +999,7 @@ function render(){
 function renderGrid(){
   const {y,m} = S.view;
   const first = new Date(Date.UTC(y,m,1));
-  const offset = (first.getUTCDay()+6)%7;
+  const offset = S.set.week === 'sun' ? first.getUTCDay() : (first.getUTCDay()+6)%7;
   let html = '';
   for (let i=0;i<42;i++){
     const k = keyOf(y,m,1-offset+i), dt = parseKey(k), day = S.days[k];
@@ -1017,7 +1100,7 @@ function chart(day){
     if (pv) s += `<rect x="${x-step*0.32}" y="${H-28-pv*0.32}" width="${step*0.64}" height="${pv*0.32}" fill="var(--blue)" opacity="${.35+pv/160}"/>`;
     if (i%3===0){
       s += `<g transform="translate(${x-13} 4)"><svg width="26" height="26" viewBox="0 0 100 100">${icon(cat(h.code), !!h.day, sevOf(h.code)).replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g>`;
-      s += `<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="Jost, sans-serif">${pad(i)}</text>`;
+      s += `<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="Jost, sans-serif">${S.set.time === '24' ? pad(i) : (i % 12 || 12) + (i < 12 ? 'a' : 'p')}</text>`;
       s += `<text x="${x}" y="${pts[i][1]-12}" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)" font-family="Jost, sans-serif">${Math.round(temps[i])}°</text>`;
     }
   });
@@ -1158,7 +1241,7 @@ function sceneOf(day){
 }
 function scene(day){
   const kind = (SNAP && params.get('scene')) || sceneOf(day); if (!kind) return null;   // scene= is a snapshot-only review hook
-  const mm = day.psum ?? 0, cm = day.snow ?? 0, wind = Math.round(day.wind ?? 0);
+  const mm = day.psum ?? 0, cm = day.snow ?? 0, [wv, wu] = windU(day.wind);
   const fcm = cm < 10 ? cm.toFixed(1) : Math.round(cm), fmm = mm < 10 ? mm.toFixed(1) : Math.round(mm);
   const val = (v, u, cap) => `<div class="ice-val" aria-hidden="true"><b>${v}</b>${u ? `<small>${u}</small>` : ''}<span>${cap}</span></div>`;
   const deep = x => Math.round(Math.min(56 + x, 120));
@@ -1166,8 +1249,8 @@ function scene(day){
     snow:  { h: deep(cm*4),  g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Snow'), actor: PG_SKIER, aria: cm >= 0.1 ? `${fcm} cm of snowfall` : 'Snow' },
     sleet: { h: 64,          g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Sleet'), actor: PG_JACKET, aria: 'Sleet, frost on the ground' },
     beach: { h: 64,          g:'sand',  lab: day.uv != null ? val(Math.round(day.uv), '', 'UV index') : val(Math.round(day.daylight/3600), 'h', 'Daylight'), actor: PG_BEACH, aria: 'Sunny beach' },
-    sleep: { h: 60,          g:'floor', lab: val(wind, 'km/h', 'Wind'), actor: PG_BED, aria: 'Cloudy day, penguin asleep on the bed' },
-    fog:   { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_CAR, aria: 'Foggy road',
+    sleep: { h: 60,          g:'floor', lab: val(wv, wu, 'Wind'), actor: PG_BED, aria: 'Cloudy day, penguin asleep on the bed' },
+    fog:   { h: 60,          g:'road',  lab: val(wv, wu, 'Wind'), actor: PG_CAR, aria: 'Foggy road',
              fx: `<div class="fx fx-fog" aria-hidden="true"><i style="top:34%;--d:34s"></i><i style="top:56%;--d:24s"></i><i style="top:74%;--d:42s"></i></div>` },
     rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_BOAT, aria: `Rain, ${fmm} mm`, rip: true,
              fx: `<div class="fx fx-rain" aria-hidden="true">${drops(30)}</div>` },
@@ -1189,7 +1272,7 @@ function renderFocus(){
   const dlH = Math.floor(day.daylight/3600), dlM = Math.round(day.daylight%3600/60);
   const uv = day.uv ?? 0, uvW = uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : 'Very high';
   const wind = Math.round(day.wind ?? 0), hist = day.src === 'hist', outlook = day.src === 'outlook';
-  const sc = scene(day);
+  const sc = S.set.scenes ? scene(day) : null;
   const stat = (lbl, glyph, v, unit, sub, meter) => `<div class="stat"><div class="h"><span class="label">${lbl}</span>${glyph}</div><div class="v">${v}<small>${unit||''}</small></div>${meter ? `<div class="meter"><i style="width:${meter[0]}%;background:${meter[1]}"></i></div>` : ''}<div class="s">${sub}</div></div>`;
   const sq = c => `<i style="width:12px;height:12px;background:${c};display:block"></i>`, ci = c => `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:block"></i>`, tr = c => `<i style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid ${c};display:block"></i>`;
   $('#sheet').innerHTML = `
@@ -1210,7 +1293,7 @@ function renderFocus(){
         ${stat('Daylight', sq('var(--yellow)'), dlH+'h '+dlM, 'm', 'Length of the day', [day.daylight/864, 'var(--yellow)'])}
         ${day.snow >= 0.1 ? stat('Snowfall', ci('var(--blue)'), day.snow < 10 ? day.snow.toFixed(1) : Math.round(day.snow), 'cm', `${hist ? 'Recorded' : (day.pprob ?? 0) + '% chance'} · ${day.frost ? 'roads may ice' : 'above freezing'}`, [Math.min(100, day.snow*5), 'var(--blue)'])
           : stat('Precipitation', tr('var(--blue)'), (day.psum ?? 0).toFixed(1), 'mm', hist ? 'Recorded total' : outlook ? `${day.pprob}% of model runs` : `${day.pprob ?? 0}% max chance`, [hist ? Math.min(100, (day.psum ?? 0)*5) : Math.min(100, day.pprob ?? 0), 'var(--blue)'])}
-        ${stat('Wind', sq('var(--ink)'), wind, 'km/h', day.wdir != null ? `Mostly from ${compass(day.wdir)}` : 'Strongest gust-free wind', [Math.min(100, wind/0.8), 'var(--ink)'])}
+        ${stat('Wind', sq('var(--ink)'), windU(day.wind)[0], windU(day.wind)[1], day.wdir != null ? `Mostly from ${compass(day.wdir)}` : 'Strongest gust-free wind', [Math.min(100, wind/0.8), 'var(--ink)'])}
         ${outlook ? (() => { const sp = Math.max(...day.members.tx) - Math.min(...day.members.tx), c = sp < 4 ? 'High' : sp < 8 ? 'Medium' : 'Low';
             return stat('Confidence', ci('var(--red)'), c, '', `Highs spread over ${Math.round(sp)}°`, [Math.max(8, 100 - sp*9), 'var(--red)']); })()
           : hist ? (() => { const wet = day.hours.filter(h => (h.mm ?? 0) >= 0.1).length;
@@ -1311,7 +1394,7 @@ function sumNow(l){
   const s = S.sum[locId(l)]; if (!s) return null;
   const t = (SNAP && params.get('at') && locId(l) === locId(S.loc)) ? params.get('at') : new Date(Date.now() + s.off*1000).toISOString().slice(0,16);
   const day = s.sunrise.slice(0,10) === t.slice(0,10) ? (t >= s.sunrise && t < s.sunset) : s.isDay;
-  return { ...s, time:t.slice(11,16), day };
+  return { ...s, time:clock(t.slice(11,16)), day };
 }
 const CHEV = `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`;
 function locBlock(now, tz){
@@ -1321,7 +1404,7 @@ function locBlock(now, tz){
     <div class="loc-row">
       <button class="loc-switch" id="locSwitch" aria-haspopup="listbox" aria-expanded="${!!S.switcher}">
         <span class="place">${S.loc.name}${CHEV}</span>
-        <span class="lsub">${S.loc.region ? S.loc.region+' · ' : ''}${now.slice(11,16)} local</span>
+        <span class="lsub">${S.loc.region ? S.loc.region+' · ' : ''}${clock(now.slice(11,16))} local</span>
       </button>
       <button class="save-btn ${saved ? 'saved' : 'cta'}" data-save aria-pressed="${saved}">${BOOKMARK(saved)}${saved ? 'Saved' : 'Save'}</button>
     </div>
@@ -1340,6 +1423,92 @@ function switcherHTML(){
     <div class="sw-f"><button data-add>+ Add place</button><button data-open-places>Manage</button></div>
   </div>`;
 }
+/* ---------- Settings ---------- */
+const STABS = {
+  general:   { name:'General',   sh:'c', title:'General',   desc:'Units, time and how the calendar is laid out.' },
+  customize: { name:'Customize', sh:'s', title:'Customize', desc:'Choose what the calendar, day view and sidebar show.' },
+  themes:    { name:'Themes',    sh:'t', title:'Themes',    desc:'Appearance and colour palette.' },
+};
+const PALETTES = { bauhaus:['Bauhaus','Red, yellow, blue',['#F3B415','#DE3B26','#1F4FA8']], pastel:['Pastel','Soft primaries',['#F2C66B','#E8826F','#6F93D6']],
+  mono:['Monochrome','Greys only',['#9A968D','#3A3A3A','#62605B']], ocean:['Ocean','Coral, sun, teal',['#F2B33D','#E06A4E','#1F7A8C']] };
+const segCtl = (key, opts, cur) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-set="${key}" data-val="${v}" role="radio" aria-checked="${v === cur}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+const swCtl = (key, label) => `<button class="switch" role="switch" data-set="${key}" aria-checked="${!!S.set[key]}" aria-label="${label}"></button>`;
+const srow = (t, sub, ctl) => `<div class="srow"><div><b>${t}</b>${sub ? `<small>${sub}</small>` : ''}</div>${ctl}</div>`;
+function settingsBody(tab){
+  if (tab === 'general') return `
+    <div class="sgroup"><div class="label">Units</div>
+      ${srow('Temperature', '', segCtl('unit', [['C','°C'],['F','°F']], S.unit))}
+      ${srow('Wind speed', '', segCtl('wind', [['kmh','km/h'],['mph','mph'],['ms','m/s']], S.set.wind))}</div>
+    <div class="sgroup"><div class="label">Time &amp; calendar</div>
+      ${srow('Time format', 'Sunrise, sunset, local times and the hourly chart.', segCtl('time', [['24','24-hour'],['12','12-hour']], S.set.time))}
+      ${srow('Week starts on', '', segCtl('week', [['mon','Monday'],['sun','Sunday']], S.set.week))}</div>
+    <div class="sgroup"><div class="label">About</div>
+      ${srow('Weather data', 'Forecast, one-year history and the one-month outlook from Open-Meteo. Moon phases are calculated in the app.', '')}
+      ${srow('Reset settings', 'Back to the default units, layout and theme. Saved places are kept.', '<button class="btn" data-reset>Reset</button>')}</div>`;
+  if (tab === 'customize') return `
+    <div class="sgroup"><div class="label">Calendar</div>
+      ${srow('One-month outlook', 'Show days 16–31 ahead from the model ensemble (marked ≈).', swCtl('outlook', 'One-month outlook'))}</div>
+    <div class="sgroup"><div class="label">Day view</div>
+      ${srow('Weather scenes', 'The penguin scene at the bottom of each day.', swCtl('scenes', 'Weather scenes'))}
+      ${srow('Animations', 'Icon and scene motion. Always off when your device is set to reduce motion.', swCtl('motion', 'Animations'))}</div>
+    <div class="sgroup"><div class="label">Sidebar</div>
+      ${srow('Sun &amp; moon', 'Sun arc by day, moon phase by night.', swCtl('showSun', 'Sun and moon'))}
+      ${srow('Next 7 days', '', swCtl('showWeek', 'Next 7 days'))}
+      ${srow('Legend', '', swCtl('showLegend', 'Legend'))}</div>`;
+  return `
+    <div class="sgroup"><div class="label">Appearance</div>
+      ${srow('Mode', 'Auto switches to light at local sunrise and dark at sunset.', segCtl('theme', [['auto','Auto'],['light','Light'],['dark','Dark']], S.themePref))}</div>
+    <div class="sgroup"><div class="label">Colour palette</div>
+      <div class="palettes" role="radiogroup">${Object.entries(PALETTES).map(([k, [n, d, c]]) => `<button class="palette" role="radio" data-palette="${k}" aria-checked="${S.set.palette === k}">
+        <span class="sw"><i style="background:${c[0]}"></i><i style="background:${c[1]}"></i><i style="border-bottom-color:${c[2]}"></i></span><span>${n}<small>${d}</small></span></button>`).join('')}</div></div>`;
+}
+function renderSettings(){
+  const tab = S.stab || 'general', t = STABS[tab];
+  const keep = $('#ssheet .sscroll')?.scrollTop;
+  $('#ssheet').innerHTML = `<nav class="snav" role="tablist" aria-label="Settings sections"><h2>Settings</h2>${Object.entries(STABS).map(([k, v]) =>
+      `<button role="tab" data-stab="${k}" aria-selected="${k === tab}"><i class="sh ${v.sh}"></i>${v.name}</button>`).join('')}</nav>
+    <section class="sbody" role="tabpanel"><div class="shead"><div><h3>${t.title}</h3><p>${t.desc}</p></div>
+      <button class="icon-btn close" data-close-settings aria-label="Close settings"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="sscroll">${settingsBody(tab)}</div></section>`;
+  if (keep != null && S.stabKeep === tab) $('#ssheet .sscroll').scrollTop = keep;
+  S.stabKeep = tab;
+}
+function openSettings(tab){ S.switcher = false; renderSide(); S.stab = tab || S.stab || 'general'; S.stabKeep = null; renderSettings(); $('#settings').classList.add('open'); }
+function closeSettings(){ $('#settings').classList.remove('open'); }
+function applySettings(){
+  const h = document.documentElement;
+  h.dataset.palette = S.set.palette;
+  h.classList.toggle('no-motion', !S.set.motion);
+  h.classList.toggle('no-sun', !S.set.showSun); h.classList.toggle('no-week', !S.set.showWeek); h.classList.toggle('no-legend', !S.set.showLegend);
+}
+function saveSettings(){ if (!SNAP) store.set('wc.settings', S.set); }
+function setOption(key, val){
+  if (key === 'unit'){ S.unit = val; store.set('wc.unit', val); }
+  else if (key === 'theme'){ S.themePref = val; store.set('wc.theme', val); applyTheme(); }
+  else { S.set[key] = val; saveSettings(); }
+  if (key === 'outlook' && S.data){ S.days = index(S.data, S.raw.arch, val ? S.raw.ens : null);
+    if (S.selected && !S.days[S.selected]) closeFocus();
+    if (keyOf(S.view.y, S.view.m, 1) > S.maxKey){ const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() }; } }
+  applySettings(); if (S.data) render(); renderSettings();
+  if ($('#places').classList.contains('open')) renderPlaces();
+}
+$('#settingsBtn').addEventListener('click', () => openSettings());
+$('#ssheet').addEventListener('click', e => {
+  const t = e.target;
+  const tb = t.closest('[data-stab]'); if (tb){ S.stab = tb.dataset.stab; renderSettings(); return; }
+  if (t.closest('[data-close-settings]')) return closeSettings();
+  const sw = t.closest('.switch[data-set]'); if (sw) return setOption(sw.dataset.set, !S.set[sw.dataset.set]);
+  const sg = t.closest('[data-set][data-val]'); if (sg) return setOption(sg.dataset.set, sg.dataset.val);
+  const pl = t.closest('.palette[data-palette]'); if (pl) return setOption('palette', pl.dataset.palette);   // not the <html data-palette> itself
+  if (t.closest('[data-reset]')){
+    S.set = { wind:'kmh', time:'24', week:'mon', outlook:true, scenes:true, motion:true, showSun:true, showWeek:true, showLegend:true, palette:'bauhaus' };
+    S.unit = 'C'; store.set('wc.unit', 'C'); S.themePref = 'auto'; store.set('wc.theme', 'auto'); applyTheme();
+    setOption('outlook', true);
+  }
+});
+$('#settings').addEventListener('click', e => { if (e.target.id === 'settings') closeSettings(); });
+applySettings();
+
 function openPlaces(){ S.switcher = false; renderSide(); renderPlaces(); $('#places').classList.add('open'); }
 function closePlaces(){ $('#places').classList.remove('open'); }
 $('#side').addEventListener('scroll', e => { if (e.target.classList?.contains('sw-list')) $('#side .switcher').classList.toggle('scrolled', e.target.scrollTop > 0); }, true);
@@ -1376,13 +1545,14 @@ $('#prevBtn').onclick = () => { if ($('#prevBtn').disabled) return; let {y,m} = 
 $('#nextBtn').onclick = () => { if ($('#nextBtn').disabled) return; let {y,m} = S.view; m++; if(m>11){m=0;y++;} S.view={y,m}; render(); };
 $('#todayBtn').onclick = () => { const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() }; render(); };
 $('#unitSeg').onclick = e => { const b = e.target.closest('button'); if(!b) return; S.unit = b.dataset.u; store.set('wc.unit', S.unit); render(); };
-$('#modeChip').onclick = () => { S.themePref = { auto:'light', light:'dark', dark:'auto' }[S.themePref]; store.set('wc.theme', S.themePref); applyTheme(); };
+$('#modeChip').onclick = () => { S.themePref = { auto:'light', light:'dark', dark:'auto' }[S.themePref]; store.set('wc.theme', S.themePref); applyTheme(); if ($('#settings').classList.contains('open')) renderSettings(); };
 document.addEventListener('click', e => {
   const c = e.target.closest('[data-k]'); if (c && !e.target.closest('.sheet')) return openFocus(c.dataset.k);
   const g = e.target.closest('[data-go]'); if (g && !g.disabled) { S.selected = g.dataset.go; const d = parseKey(S.selected); S.view = { y:d.getUTCFullYear(), m:d.getUTCMonth() }; return render(); }
   if (e.target.closest('[data-close]') || e.target.id === 'focus') closeFocus();
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('#settings').classList.contains('open')) return closeSettings();
   if (e.key === 'Escape' && $('#places').classList.contains('open')) return closePlaces();
   if (e.key === 'Escape' && S.switcher) { S.switcher = false; return renderSide(); }
   if (!S.selected) { if (e.key === 'Enter' && e.target.closest?.('.now')) openFocus(S.todayKey); return; }
@@ -1405,6 +1575,7 @@ locate().then(async () => {
   if (ui === 'search') { $('#searchInput').value = params.get('q'); $('#searchInput').setAttribute('value', params.get('q')); syncClear(); $('#searchInput').focus(); await doSearch(params.get('q')); }
   if (ui === 'saved') saveLoc(S.loc);
   if (ui === 'places') openPlaces();
+  if (ui === 'settings') openSettings(params.get('tab') || 'general');
   // Snapshot export: lift popovers to the top layer so static design imports keep their stacking.
   if (params.has('lift')) document.querySelectorAll('.switcher, #results:not([hidden])').forEach(el => {
     const r = el.getBoundingClientRect();

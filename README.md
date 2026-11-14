@@ -106,8 +106,13 @@ Click or tap any day to open it.
 - daylume switches to **light** at local sunrise and **dark** at local sunset, at the location you're viewing. The chip at the top right shows the next change.
 - Click the chip to choose: **Auto → Light → Dark → Auto**.
 
-### Units
-Switch between **°C** and **°F** at the top right.
+### Settings
+Open **Settings** with the gear icon at the top right. Your choices are saved in this browser.
+- **General**: temperature (°C/°F), wind speed (km/h, mph, m/s), time format (24-hour or 12-hour), and whether the week starts on Monday or Sunday. **Reset** returns everything to the defaults (saved places are kept).
+- **Customize**: show or hide the one-month outlook, the penguin weather scenes, animations, and the sidebar's Sun & moon, Next 7 days and Legend sections.
+- **Themes**: Auto (follows sunrise and sunset), Light or Dark, and a colour palette — Bauhaus, Pastel, Monochrome or Ocean.
+
+You can also switch **°C / °F** and the theme straight from the header.
 
 ---
 
