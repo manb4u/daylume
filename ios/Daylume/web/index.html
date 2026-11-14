@@ -150,6 +150,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .detail{padding:28px 32px 32px;display:flex;flex-direction:column;gap:26px;min-width:0}
 .dhead{display:flex;align-items:center;gap:6px}
 .dhead .t{flex:1;font-size:13px;color:var(--muted)}
+.dhead .t-m{display:none}   /* phone-only title: place · date */
 .close{border:1px solid var(--line)}
 .chart{background:var(--bg);border-radius:20px;padding:18px 18px 10px}
 .chart svg{width:100%;height:auto;display:block}
@@ -743,10 +744,12 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .fopt{height:48px}
 
   /* Day details: clear hierarchy — date, big temperature, condition, then details; the icon sits to the right */
-  .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"date art" "temps art" "word art" "desc desc";column-gap:12px;align-content:start;padding:14px 16px 28px;
+  .dhead .t:not(.t-m){display:none}
+  .dhead .t.t-m{display:block}
+  .hero .date{display:none}   /* the date now lives in the header title */
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"temps art" "word art" "desc desc";column-gap:12px;align-content:start;padding:18px 16px 28px;
     background:linear-gradient(180deg,var(--day-tint) 0 calc(100% - var(--fade,40px)),var(--surface) 100%) !important}
   .hero.has-scene{--fade:1px;padding-bottom:calc(var(--band) + 64px)}
-  .hero .date{grid-area:date;font-size:13px;font-weight:500;letter-spacing:.01em;opacity:.66;align-self:end}
   .hero .temps{grid-area:temps;margin-top:2px;gap:8px;align-items:baseline}
   .hero .temps b{font-size:68px;font-weight:300;letter-spacing:-.045em;line-height:1}
   .hero .temps span{font-size:22px;font-weight:400;opacity:.5}
@@ -757,7 +760,8 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .hero .desc.dup{display:none}
   .hero .desc.desc-m{display:block}
   /* the ground strip under the penguin fades into the page so the scene flows into the cards below */
-  .hero.has-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(var(--band) * .5);background:linear-gradient(180deg,transparent,var(--surface));z-index:1;pointer-events:none}
+  /* the whole ground strip blends vertically from its own colour at the top into the sheet background at the bottom */
+  .hero.has-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--band);background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--surface) 35%,transparent) 40%,color-mix(in srgb,var(--surface) 80%,transparent) 72%,var(--surface) 100%);z-index:1;pointer-events:none}
   .hero.has-scene .band{z-index:auto}   /* no stacking context, so the reading below can sit above the fade */
   .hero .band .ice-val{z-index:2}
   .hero+.detail .chart,.hero~.chart{margin-top:4px}
@@ -1442,7 +1446,8 @@ function renderFocus(){
   const k = S.selected, day = S.days[k], dt = parseKey(k);
   const rel = k === S.todayKey ? 'Today' : k === nextKey(S.todayKey) ? 'Tomorrow' : k === prevKey(S.todayKey) ? 'Yesterday' : (day?.src === 'outlook' ? 'Outlook' : k < S.todayKey ? 'Recorded' : 'Forecast');
   const dateStr = `${WD[dt.getUTCDay()]}, ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]} ${dt.getUTCFullYear()}`;
-  const head = `<div class="dhead"><span class="t">${S.loc.name} · ${rel}</span>
+  const dmy = `${String(dt.getUTCDate()).padStart(2,'0')}.${String(dt.getUTCMonth()+1).padStart(2,'0')}.${dt.getUTCFullYear()}`;
+  const head = `<div class="dhead"><span class="t">${S.loc.name} · ${rel}</span><span class="t t-m">${S.loc.name} · ${k === S.todayKey ? 'Today' : dmy}</span>
       <button class="icon-btn" data-go="${prevKey(k)}" aria-label="Previous day" ${S.days[prevKey(k)]?'':'disabled style="opacity:.3"'}><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="icon-btn" data-go="${nextKey(k)}" aria-label="Next day" ${S.days[nextKey(k)]?'':'disabled style="opacity:.3"'}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
       <button class="icon-btn close" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;
