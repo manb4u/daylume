@@ -759,14 +759,6 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .focus.open .sheet,.focus.open .psheet,.focus.open .ssheet{transform:none}
   .sheet{height:auto;max-height:94dvh}
   .dhead{padding:18px 12px 8px 16px;touch-action:none}
-  /* Day view: header and hero read as one block, both painted with the day's weather tint (Apple Weather style) */
-  .dhead{background:var(--day-tint,var(--surface));border-bottom:0;color:var(--hero-ink);gap:8px;padding-bottom:12px}
-  .dhead .t{font-size:15px;font-weight:600;color:var(--hero-ink);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-  .dhead .icon-btn{width:40px;height:40px;border:0;border-radius:50%;background:color-mix(in srgb,var(--hero-ink) 8%,transparent);color:var(--hero-ink)}
-  .dhead .icon-btn:hover{background:color-mix(in srgb,var(--hero-ink) 14%,transparent)}
-  .dhead .close{margin-left:4px}
-  .hero{padding-top:12px}
-  .hero .date span{display:none}
   .psheet{position:relative;height:88dvh;max-height:none;padding:16px 12px 0}
   .ph{touch-action:none;padding-top:8px}
   .pgrid{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));grid-auto-rows:max-content}   /* rows fit their cards instead of squeezing to the sheet height */
@@ -784,6 +776,31 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .fmenu{position:fixed;left:0;right:0;top:auto;bottom:0;z-index:5;min-width:0;max-height:70dvh;overflow:auto;padding:28px 8px calc(12px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;border:0;box-shadow:0 0 0 100vmax var(--sheet-scrim)}
   .fopt{height:48px}
 
+
+  /* Saved locations: compact list cards */
+  .pcard{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top bt" "tags tags";min-height:0;padding:14px 14px 12px;gap:0 12px}
+  .pcard .top{grid-area:top;align-items:center}
+  .pcard .ic{width:40px;height:40px;margin:0}
+  .pcard .bt{grid-area:bt;margin-top:0;align-items:center;gap:10px}
+  .pcard .tp{font-size:40px}
+  .pcard .cd{display:none}
+  .pcard .tags{grid-area:tags;margin-top:10px;padding-top:10px}
+  .padd{min-height:72px;flex-direction:row}
+  .padd .plus{width:36px;height:36px}
+
+  /* Toasts sit above the navigation island */
+  .toast,.err{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+}
+
+/* ===== Day details (phone and iPad portrait): unified tinted header + hero, clear hierarchy, scene fading into the cards ===== */
+@media (max-width:640px), (min-width:641px) and (max-width:1100px) and (orientation:portrait){
+  /* Day view: header and hero read as one block, both painted with the day's weather tint (Apple Weather style) */
+  .dhead{background:var(--day-tint,var(--surface));border-bottom:0;color:var(--hero-ink);gap:8px;padding-bottom:12px}
+  .dhead .t{font-size:15px;font-weight:600;color:var(--hero-ink);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .dhead .icon-btn{width:40px;height:40px;border:0;border-radius:50%;background:color-mix(in srgb,var(--hero-ink) 8%,transparent);color:var(--hero-ink)}
+  .dhead .icon-btn:hover{background:color-mix(in srgb,var(--hero-ink) 14%,transparent)}
+  .dhead .close{margin-left:4px}
+  .hero .date span{display:none}
   /* Day details: clear hierarchy — date, big temperature, condition, then details; the icon sits to the right */
   .dhead .t:not(.t-m){display:none}
   .dhead .t.t-m{display:block}
@@ -806,20 +823,19 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .hero.has-scene .band{z-index:auto}   /* no stacking context, so the reading below can sit above the fade */
   .hero .band .ice-val{z-index:2}
   .hero+.detail .chart,.hero~.chart{margin-top:4px}
-
-  /* Saved locations: compact list cards */
-  .pcard{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top bt" "tags tags";min-height:0;padding:14px 14px 12px;gap:0 12px}
-  .pcard .top{grid-area:top;align-items:center}
-  .pcard .ic{width:40px;height:40px;margin:0}
-  .pcard .bt{grid-area:bt;margin-top:0;align-items:center;gap:10px}
-  .pcard .tp{font-size:40px}
-  .pcard .cd{display:none}
-  .pcard .tags{grid-area:tags;margin-top:10px;padding-top:10px}
-  .padd{min-height:72px;flex-direction:row}
-  .padd .plus{width:36px;height:36px}
-
-  /* Toasts sit above the navigation island */
-  .toast,.err{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+}
+/* iPad portrait: same design, scaled to the wider sheet */
+@media (min-width:641px) and (max-width:1100px) and (orientation:portrait){
+  .dhead{padding:12px 16px 12px 24px;gap:10px}
+  .dhead .t{font-size:17px}
+  .dhead .icon-btn{width:44px;height:44px}
+  .hero{padding:24px 24px 36px;column-gap:24px}
+  .hero.has-scene{padding-bottom:calc(var(--band) + 76px)}
+  .hero .temps b{font-size:96px}
+  .hero .temps span{font-size:30px}
+  .hero .word{font-size:22px;margin-top:10px}
+  .hero .art svg{width:180px;height:180px}
+  .hero .desc{font-size:16px;margin-top:16px;max-width:48ch}
 }
 /* Small phones */
 @media (max-width:380px){
