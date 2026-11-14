@@ -339,9 +339,11 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 /* Locations */
 .locbox{position:relative}
 .loc-row{display:flex;align-items:flex-start;gap:10px;margin-top:6px}
-.loc-switch{flex:1;text-align:left;min-width:0;border-radius:12px;margin:-6px -8px;padding:6px 8px;transition:background .2s}
-.loc-switch:hover{background:var(--line)}
-.loc-switch .place{margin-top:0;display:flex;align-items:center;gap:8px}
+.loc-trigger{flex:1;min-width:0}
+.loc-switch{display:inline-flex;max-width:100%;text-align:left}
+.loc-switch .place{margin-top:0;display:flex;align-items:center;gap:2px;min-width:0}
+.loc-switch .chev{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;transition:background .15s}
+.loc-switch:hover .chev,.loc-switch:focus-visible .chev,.loc-switch[aria-expanded="true"] .chev{background:var(--line)}
 .loc-switch .place svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;flex-shrink:0;transition:transform .2s}
 .loc-switch[aria-expanded="true"] .place svg{transform:rotate(180deg)}
 .lsub{display:block;font-size:13px;color:var(--muted);margin-top:4px}
@@ -1419,10 +1421,12 @@ function locBlock(now, tz){
   return `<div class="locbox">
     <div class="label">Location${S.saved.length ? ` · ${S.saved.length} saved` : ''}</div>
     <div class="loc-row">
-      <button class="loc-switch" id="locSwitch" aria-haspopup="listbox" aria-expanded="${!!S.switcher}">
-        <span class="place">${S.loc.name}${CHEV}</span>
+      <div class="loc-trigger">
+        <button class="loc-switch" id="locSwitch" aria-haspopup="listbox" aria-expanded="${!!S.switcher}" aria-label="${S.loc.name}, show saved places">
+          <span class="place">${S.loc.name}<span class="chev">${CHEV}</span></span>
+        </button>
         <span class="lsub">${S.loc.region ? S.loc.region+' · ' : ''}${clock(now.slice(11,16))} local</span>
-      </button>
+      </div>
       <button class="save-btn ${saved ? 'saved' : 'cta'}" data-save aria-pressed="${saved}">${BOOKMARK(saved)}${saved ? 'Saved' : 'Save'}</button>
     </div>
     ${S.switcher ? switcherHTML() : ''}
