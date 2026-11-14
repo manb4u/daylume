@@ -143,6 +143,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .hero .art svg{width:300px;height:300px}
 .hero .word{font-size:64px;font-weight:600;line-height:.9;letter-spacing:-.02em;text-transform:uppercase}
 .hero .desc{font-size:16px;opacity:.7;margin-top:10px}
+.hero .desc-m{display:none}   /* phone-only short description */
 .hero .temps{display:flex;align-items:baseline;gap:16px;margin-top:22px;font-weight:300}
 .hero .temps b{font-size:56px;font-weight:300;letter-spacing:-.04em;line-height:1}
 .hero .temps span{font-size:24px;opacity:.6}
@@ -741,17 +742,25 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .fmenu{position:fixed;left:0;right:0;top:auto;bottom:0;z-index:5;min-width:0;max-height:70dvh;overflow:auto;padding:28px 8px calc(12px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;border:0;box-shadow:0 0 0 100vmax var(--sheet-scrim)}
   .fopt{height:48px}
 
-  /* Day details: compact hero (icon beside the headline) */
-  .hero{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"date date" "art word" "art desc" "art temps";column-gap:16px;align-content:start;padding:16px 16px 20px}
-  .hero.has-scene{padding-bottom:calc(var(--band) + 66px)}
-  .hero .date{grid-area:date;margin-bottom:10px}
-  .hero .art{grid-area:art;padding:0;align-self:center}
-  .hero .art svg{width:104px;height:104px}
-  .hero .word{grid-area:word;font-size:30px;align-self:end}
-  .hero .desc{grid-area:desc;font-size:13px;margin-top:4px}
-  .hero .temps{grid-area:temps;margin-top:8px;gap:10px}
-  .hero .temps b{font-size:36px}
-  .hero .temps span{font-size:18px}
+  /* Day details: clear hierarchy — date, big temperature, condition, then details; the icon sits to the right */
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"date art" "temps art" "word art" "desc desc";column-gap:12px;align-content:start;padding:14px 16px 28px;
+    background:linear-gradient(180deg,var(--day-tint) 0 calc(100% - var(--fade,40px)),var(--surface) 100%) !important}
+  .hero.has-scene{--fade:1px;padding-bottom:calc(var(--band) + 64px)}
+  .hero .date{grid-area:date;font-size:13px;font-weight:500;letter-spacing:.01em;opacity:.66;align-self:end}
+  .hero .temps{grid-area:temps;margin-top:2px;gap:8px;align-items:baseline}
+  .hero .temps b{font-size:68px;font-weight:300;letter-spacing:-.045em;line-height:1}
+  .hero .temps span{font-size:22px;font-weight:400;opacity:.5}
+  .hero .word{grid-area:word;font-size:17px;font-weight:700;letter-spacing:.06em;line-height:1.15;margin-top:6px;align-self:start}
+  .hero .art{grid-area:art;padding:0;align-self:center;justify-self:end}
+  .hero .art svg{width:116px;height:116px}
+  .hero .desc{grid-area:desc;font-size:14px;line-height:1.45;opacity:.68;margin-top:14px;max-width:34ch}
+  .hero .desc.dup{display:none}
+  .hero .desc.desc-m{display:block}
+  /* the ground strip under the penguin fades into the page so the scene flows into the cards below */
+  .hero.has-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(var(--band) * .5);background:linear-gradient(180deg,transparent,var(--surface));z-index:1;pointer-events:none}
+  .hero.has-scene .band{z-index:auto}   /* no stacking context, so the reading below can sit above the fade */
+  .hero .band .ice-val{z-index:2}
+  .hero+.detail .chart,.hero~.chart{margin-top:4px}
 
   /* Saved locations: compact list cards */
   .pcard{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top bt" "tags tags";min-height:0;padding:14px 14px 12px;gap:0 12px}
@@ -1444,13 +1453,18 @@ function renderFocus(){
   const sc = S.set.scenes ? scene(day) : null;
   const stat = (lbl, glyph, v, unit, sub, meter) => `<div class="stat"><div class="h"><span class="label">${lbl}</span>${glyph}</div><div class="v">${v}<small>${unit||''}</small></div>${meter ? `<div class="meter"><i style="width:${meter[0]}%;background:${meter[1]}"></i></div>` : ''}<div class="s">${sub}</div></div>`;
   const sq = c => `<i style="width:12px;height:12px;background:${c};display:block"></i>`, ci = c => `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:block"></i>`, tr = c => `<i style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid ${c};display:block"></i>`;
+  // description split into parts so phones can drop the condition when it just repeats the headline (desktop text is unchanged)
+  const wmo = outlook ? 'Ensemble outlook' : (WMO[day.code] || ''), rest = outlook ? `${day.pprob}% of ${day.runs} model runs bring rain` : hist ? `${(day.psum ?? 0).toFixed(1)} mm recorded` : day.pprob ? `${day.pprob}% chance of precipitation` : '';
+  const dup = !outlook && wmo.trim().toLowerCase() === String(dayWord(day)).trim().toLowerCase();
+  const full = outlook ? `Ensemble outlook · ${day.pprob}% of ${day.runs} model runs bring rain` : (WMO[day.code] || '') + (hist ? ` · ${(day.psum ?? 0).toFixed(1)} mm recorded` : day.pprob ? ` · ${day.pprob}% chance of precipitation` : '');
+  const descHTML = `<div class="desc${dup ? ' dup' : ''}">${full}</div>${dup && rest ? `<div class="desc desc-m">${rest}</div>` : ''}`;
   $('#sheet').style.setProperty('--day-tint', `var(--t-${tintOf(day)})`);
   $('#sheet').innerHTML = `
     <section class="hero${sc ? ' has-scene' : ''}" style="background:var(--t-${tintOf(day)})${sc ? `;--band:${sc.h}px` : ''}">
       <div class="date"><span>${rel}</span>${dateStr}</div>
       <div class="art">${icon(day.c, true, day.sev)}</div>
       <div class="word">${dayWord(day)}</div>
-      <div class="desc">${outlook ? `Ensemble outlook · ${day.pprob}% of ${day.runs} model runs bring rain` : (WMO[day.code] || '') + (hist ? ` · ${(day.psum ?? 0).toFixed(1)} mm recorded` : day.pprob ? ` · ${day.pprob}% chance of precipitation` : '')}</div>
+      ${descHTML}
       <div class="temps"><b>${outlook ? '≈' : ''}${T(day.tmax)}</b><span>${T(day.tmin)}</span></div>
       ${sc ? sc.html : ''}
     </section>
