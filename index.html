@@ -531,8 +531,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "loc" "now" "cal" "sun" "week" "legend"}
   header{gap:8px;padding:8px 16px 12px}
   .brand b{font-size:20px}
-  .mode-chip{width:44px;padding:0;gap:0;justify-content:center}
-  .mode-chip>span:not(.dot),.mode-chip em{display:none}
+  .mode-chip{display:none}   /* theme lives in Settings → Themes on phones */
   .month-title{flex:1;text-align:right;font-size:clamp(17px,5vw,20px)}
   .search{order:8;flex-basis:100%}
   .search input{width:100%}
