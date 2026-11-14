@@ -15,6 +15,7 @@
   --t-clear:#FAEBBE; --t-partly:#E4E9F0; --t-cloudy:#E8E4DB; --t-fog:#ECE9E2; --t-rain:#DBE3F1; --t-snow:#F1F4F8; --t-storm:#F5DAD3; --t-none:transparent; --t-heavy:#DCE6F3; --t-sleet:#E1E6EE; --snowcap:#FFFFFF; --moon-dark:rgba(21,21,21,.07);
   --ice-top:rgba(255,255,255,.9); --ice-bottom:rgba(212,226,244,.92); --ice-line:rgba(31,79,168,.07); --ice-glint:rgba(255,255,255,.8); --pg-body:#151515; --pg-edge:transparent;
   --sand-top:#F4E2B6; --sand-bottom:#E7C98A; --sand-dot:rgba(150,108,40,.28); --sand-edge:#D9B263; --road-top:#55545A; --road-bottom:#3E3D42; --road-dash:#F1E6C4; --road-edge:#8D8B84;
+  --floor-top:#DDBF92; --floor-bottom:#C69C68; --floor-seam:rgba(96,62,28,.28); --floor-edge:#A97E4C;
   --water-top:#6F98DA; --water-bottom:#2F5DB0; --water-glint:rgba(255,255,255,.55); --rain:rgba(31,79,168,.45); --fog:rgba(255,255,255,.72);
   --hero-ink:#151515; --shadow:0 30px 80px rgba(20,18,12,.18);
   --scrim:rgba(242,238,229,.72);
@@ -26,6 +27,7 @@
   --t-clear:#2E2814; --t-partly:#1C2130; --t-cloudy:#1F2024; --t-fog:#1D1E21; --t-rain:#141D33; --t-snow:#1B2029; --t-storm:#321915; --t-heavy:#1E2A3F; --t-sleet:#192030; --snowcap:#2B3647; --moon-dark:rgba(239,235,226,.08);
   --ice-top:rgba(196,216,244,.18); --ice-bottom:rgba(120,152,204,.12); --ice-line:rgba(233,238,246,.07); --ice-glint:rgba(255,255,255,.14); --pg-body:#15171c; --pg-edge:rgba(239,235,226,.35);
   --sand-top:#5A4C30; --sand-bottom:#43381F; --sand-dot:rgba(255,230,170,.12); --sand-edge:#8C7440; --road-top:#2C2D33; --road-bottom:#1F2025; --road-dash:#BFB79E; --road-edge:#4A4B52;
+  --floor-top:#4C3D2B; --floor-bottom:#3A2E20; --floor-seam:rgba(0,0,0,.38); --floor-edge:#6E5636;
   --water-top:#24427A; --water-bottom:#162A52; --water-glint:rgba(200,220,255,.35); --rain:rgba(160,190,255,.45); --fog:rgba(190,198,212,.16);
   --hero-ink:#EFEBE2; --shadow:0 30px 80px rgba(0,0,0,.55);
   --scrim:rgba(10,11,13,.72);
@@ -176,6 +178,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .band.sand{border-top-color:var(--sand-edge);background:radial-gradient(circle,var(--sand-dot) 0 1px,transparent 1.5px) 0 0/9px 9px,radial-gradient(circle,var(--sand-dot) 0 .8px,transparent 1.3px) 4px 5px/13px 11px,linear-gradient(180deg,var(--sand-top),var(--sand-bottom))}
 .band.road{border-top-color:var(--road-edge);background:linear-gradient(180deg,var(--road-top),var(--road-bottom))}
 .band.road::before{content:"";position:absolute;left:0;right:0;top:15px;height:3px;background:repeating-linear-gradient(90deg,var(--road-dash) 0 26px,transparent 26px 52px)}
+.band.floor{border-top-color:var(--floor-edge);background:linear-gradient(var(--floor-seam),var(--floor-seam)) 0 50%/100% 1px no-repeat,repeating-linear-gradient(90deg,transparent 0 79px,var(--floor-seam) 79px 80px) 0 0/100% 50% no-repeat,repeating-linear-gradient(90deg,transparent 0 79px,var(--floor-seam) 79px 80px) 40px 100%/100% 50% no-repeat,linear-gradient(180deg,var(--floor-top),var(--floor-bottom))}
 .band.water{background:linear-gradient(180deg,var(--water-top),var(--water-bottom))}
 .band.water::before,.band.water::after{content:"";position:absolute;left:0;right:0;height:2px;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 18px,var(--water-glint) 18px 34px,transparent 34px 60px)}
 .band.water::before{top:10px}
@@ -198,7 +201,10 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .penguin .pw-body{transform-origin:31px 54px;animation:pg-waddle .75s ease-in-out infinite alternate}
   .penguin .pw-fa{animation:pg-step .75s ease-in-out infinite alternate}
   .penguin .pw-fb{animation:pg-step .75s ease-in-out -.75s infinite alternate}
-  .penguin .pw-beam{animation:pg-flicker 2.6s linear infinite}
+  .penguin .bd-blanket{transform-origin:47px 50px;animation:pg-breathe 3.6s ease-in-out infinite}
+  .penguin .zz{animation:pg-zz 3.6s ease-out infinite}
+  .penguin .zz.z2{animation-delay:-1.2s}
+  .penguin .zz.z3{animation-delay:-2.4s}
   .penguin .pb-breathe{transform-origin:31px 50.5px;animation:pg-breathe 3.4s ease-in-out infinite}
   .penguin .pb-feet{transform-origin:47px 50px;animation:pg-tap 1.8s ease-in-out infinite}
   .penguin .pb-glint{animation:pg-glint 4.5s ease-in-out infinite}
@@ -227,7 +233,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 @keyframes pg-run-storm{0%{left:calc(100% + 10px)}44%{left:44%}54%{left:44%}100%{left:-70px}}
 @keyframes pg-waddle{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
 @keyframes pg-step{from{transform:translateY(0)}to{transform:translateY(-2.5px)}}
-@keyframes pg-flicker{0%,58%,100%{opacity:.34}60%{opacity:.16}62%{opacity:.34}64%{opacity:.1}66%{opacity:.34}}
+@keyframes pg-zz{0%{transform:translate(0,0) scale(.5);opacity:0}15%{opacity:.85}100%{transform:translate(16px,-30px) scale(1.5);opacity:0}}
 @keyframes pg-sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
 @keyframes pg-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.06)}}
 @keyframes pg-tap{0%,60%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(8deg)}}
@@ -253,6 +259,8 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .penguin{position:absolute;bottom:-1px;left:64%;width:60px;height:52.5px;overflow:visible}
 .penguin.car{width:75px;left:28%}
 .penguin.beach{left:54%}
+.penguin.bed{width:96px;height:67px;left:44%;bottom:-2.4px}
+.penguin .zz{opacity:.7}
 .penguin.boat{width:66px;height:55px;bottom:-7px}   /* waterline (y=52) sits on the band's edge */
 .penguin *{transform-box:view-box}
 .penguin .pg-torso{transform-origin:32px 51px;transform:rotate(-4deg)}
@@ -1045,9 +1053,25 @@ const PG_SKIER = `<svg class="penguin skier" viewBox="0 0 64 56">
           </g>
         </g>
       </svg>`;
-const PG_TORCH = walker(pwBody({ front:
-  `<path class="pw-beam" d="M11 36 L-50 20 L-50 54 Z" fill="var(--yellow)" opacity=".34"/><rect x="12.5" y="33.5" width="9.5" height="5" rx="1" fill="#3B3D44"/><rect x="11" y="33" width="2.4" height="6" fill="var(--yellow)"/>`
-  + `<ellipse cx="26" cy="36" rx="3.4" ry="8" transform="rotate(70 26 36)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>` }));
+// Cloudy: asleep in bed under a red blanket, nightcap on, Zzz drifting up
+const zz = (cls) => `<g transform="translate(27 17)"><path class="zz ${cls}" d="M0 0 H6 L0 7 H6" fill="none" stroke="var(--hero-ink)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></g>`;
+const PG_BED = `<svg class="penguin bed" viewBox="0 0 80 56">
+    <rect x="6" y="49" width="3" height="5" fill="#3B3D44"/><rect x="71" y="49" width="3" height="5" fill="#3B3D44"/>
+    <rect x="4" y="22" width="7" height="28" rx="3.5" fill="var(--blue)"/><circle cx="7.5" cy="21" r="3.5" fill="var(--blue)"/>
+    <rect x="69" y="34" width="7" height="16" rx="3" fill="var(--blue)"/>
+    <rect x="9" y="40" width="62" height="10" fill="#F2EEE5"/>
+    <rect x="11" y="31" width="17" height="9.5" rx="4.75" fill="#FFFFFF" stroke="rgba(0,0,0,.08)"/>
+    <circle cx="21" cy="30" r="7" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+    <path d="M17 28.6 q1.7 1.5 3.4 0" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M14.4 29.6 L8.4 31.3 L14.4 33 Z" fill="var(--yellow)"/>
+    <path d="M15.4 25.2 L27.2 22.4 L33.4 14.6 Z" fill="var(--yellow)"/><circle cx="33.8" cy="14.2" r="2.2" fill="#FFFFFF"/>
+    <g class="bd-blanket">
+      <path d="M24 40.5 Q30 31.5 44 32.5 Q60 33.5 70 40.5 L70 50 L24 50 Z" fill="var(--red)"/>
+      <path d="M24 41 Q30 33.6 44 34.4 Q31 36.8 27 42 Z" fill="rgba(255,255,255,.3)"/>
+      <ellipse cx="41" cy="37.5" rx="2.6" ry="6" transform="rotate(78 41 37.5)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+    </g>
+    ${zz('z1')}${zz('z2')}${zz('z3')}
+  </svg>`;
 // Rain: sitting in a little boat under an umbrella, drifting right to left on the water
 const PG_BOAT = `<svg class="penguin boat" viewBox="0 0 72 60">
     <path class="bt-wake" d="M66 52 q6 -2.2 12 0 M70 55.5 q5 -1.6 10 0" fill="none" stroke="var(--water-glint)" stroke-width="1.4" stroke-linecap="round"/>
@@ -1113,7 +1137,7 @@ const ripples = () => [12, 30, 47, 66, 84].map((l, i) => `<i class="ripple" styl
 function sceneOf(day){
   if (day.c === 'sleet') return 'sleet';
   if (day.c === 'snow' || day.snow >= 0.1) return 'snow';
-  return { clear:'beach', partly:'beach', cloudy:'torch', rain:'rain', storm:'storm', fog:'fog' }[day.c] || null;
+  return { clear:'beach', partly:'beach', cloudy:'sleep', rain:'rain', storm:'storm', fog:'fog' }[day.c] || null;
 }
 function scene(day){
   const kind = (SNAP && params.get('scene')) || sceneOf(day); if (!kind) return null;   // scene= is a snapshot-only review hook
@@ -1125,7 +1149,7 @@ function scene(day){
     snow:  { h: deep(cm*4),  g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Snow'), actor: PG_SKIER, aria: cm >= 0.1 ? `${fcm} cm of snowfall` : 'Snow' },
     sleet: { h: 64,          g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Sleet'), actor: PG_JACKET, aria: 'Sleet, frost on the ground' },
     beach: { h: 64,          g:'sand',  lab: day.uv != null ? val(Math.round(day.uv), '', 'UV index') : val(Math.round(day.daylight/3600), 'h', 'Daylight'), actor: PG_BEACH, aria: 'Sunny beach' },
-    torch: { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_TORCH, aria: 'Overcast road' },
+    sleep: { h: 60,          g:'floor', lab: val(wind, 'km/h', 'Wind'), actor: PG_BED, aria: 'Cloudy day, penguin asleep in bed' },
     fog:   { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_CAR, aria: 'Foggy road',
              fx: `<div class="fx fx-fog" aria-hidden="true"><i style="top:34%;--d:34s"></i><i style="top:56%;--d:24s"></i><i style="top:74%;--d:42s"></i></div>` },
     rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_BOAT, aria: `Rain, ${fmm} mm`, rip: true,
