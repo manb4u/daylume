@@ -61,6 +61,8 @@ To make daylume ask again from scratch, clear the site's data (see [Reset daylum
 ### Month view
 - Each day shows a weather symbol, the **high** (large) and **low** (small) temperature, and either the chance of rain, recorded rainfall (mm), snowfall (cm) or a blue **Frost** marker when the low is at or below 0°.
 - Snow days get an icy tint and a white band at the bottom that grows with the amount of snow.
+- Days from the next month that spill into the grid get a cross-hatch pattern; it disappears once you move to that month.
+- Hover a day to see its weather symbol move: the sun pulses, clouds drift, rain and snow fall, lightning flickers.
 - **Today** has a red circle. Use **‹ ›** to move between months and **Today** to jump back.
 
 ### What the days mean
@@ -68,7 +70,7 @@ To make daylume ask again from scratch, clear the site's data (see [Reset daylum
 |---|---|---|
 | Up to 1 year ago | Recorded weather archive | Actual highs, lows, rain and snow |
 | Last few days → 16 days ahead | Live forecast | Hourly detail, chance of rain, UV |
-| 16 days → 1 month ahead | Outlook from 31 model runs | **≈** temperatures on a faint diagonal hatch |
+| 16 days → 1 month ahead | Outlook from 31 model runs | **≈** before the temperature |
 
 ### Focused day view
 Click or tap any day to open it.

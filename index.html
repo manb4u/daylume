@@ -159,10 +159,40 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 
 /* Range: history + outlook */
 .icon-btn:disabled{opacity:.28;cursor:default;background:none}
-.cell.outlook{background-image:repeating-linear-gradient(135deg,transparent 0 9px,var(--line) 9px 10px)}
+.cell.next{background-image:repeating-linear-gradient(45deg,transparent 0 9px,var(--line) 9px 10px),repeating-linear-gradient(-45deg,transparent 0 9px,var(--line) 9px 10px)}
+/* Weather icon micro-motion on hover */
+.ic svg *{transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:no-preference){
+  .cell:is(:hover,:focus-visible) .ic .a-sun{animation:wx-pulse 1.8s ease-in-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-core{animation:wx-core 1.8s ease-in-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-ring{animation:wx-ring 1.8s ease-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-moon{animation:wx-rock 2.4s ease-in-out infinite;transform-origin:right center}
+  .cell:is(:hover,:focus-visible) .ic .a-twinkle{animation:wx-twinkle 1.4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.7s)}
+  .cell:is(:hover,:focus-visible) .ic .a-peek{animation:wx-peek 2s ease-in-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-drift-r{animation:wx-drift-r 2.4s ease-in-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-drift-l{animation:wx-drift-l 2.4s ease-in-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-bob{animation:wx-bob 1.6s ease-in-out infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-drop{animation:wx-drop .9s linear infinite;animation-delay:calc(var(--i,0) * -.3s)}
+  .cell:is(:hover,:focus-visible) .ic .a-flake{animation:wx-flake 1.8s linear infinite;animation-delay:calc(var(--i,0) * -.37s)}
+  .cell:is(:hover,:focus-visible) .ic .a-bolt{animation:wx-bolt 1.3s steps(1,end) infinite}
+  .cell:is(:hover,:focus-visible) .ic .a-fog{animation:wx-fog 2.2s ease-in-out infinite}
+}
+@keyframes wx-pulse{50%{transform:scale(1.06)}}
+@keyframes wx-core{50%{transform:scale(1.45)}}
+@keyframes wx-ring{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.42);opacity:0}}
+@keyframes wx-rock{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(7deg)}}
+@keyframes wx-twinkle{50%{opacity:.15}}
+@keyframes wx-peek{50%{transform:translate(3px,-5px)}}
+@keyframes wx-drift-r{50%{transform:translateX(5px)}}
+@keyframes wx-drift-l{50%{transform:translateX(-5px)}}
+@keyframes wx-bob{50%{transform:translateY(-2.5px)}}
+@keyframes wx-drop{0%{transform:translate(3px,-9px);opacity:0}25%{opacity:1}100%{transform:translate(-4px,11px);opacity:0}}
+@keyframes wx-flake{0%{transform:translateY(-7px) rotate(0deg);opacity:0}25%{opacity:1}100%{transform:translateY(10px) rotate(90deg);opacity:0}}
+@keyframes wx-bolt{0%,100%{opacity:1}42%{opacity:.15}50%{opacity:1}58%{opacity:.3}66%{opacity:1}}
+@keyframes wx-fog{50%{transform:translateX(var(--dx,6px))}}
 .cell.outlook .ic{opacity:.72}
 .cell .approx{font-size:.55em;color:var(--muted);margin-right:2px;vertical-align:.4em;letter-spacing:0}
-.lg-outlook{width:24px;height:24px;border:1.5px dashed var(--faint);background:repeating-linear-gradient(135deg,transparent 0 4px,var(--line) 4px 5px)}
+.lg-outlook{width:24px;height:24px;display:grid;place-items:center;font-size:18px;color:var(--muted)}
 /* Winter */
 .cell .wx{position:relative;z-index:1}
 .cell .snowcap{position:absolute;left:0;right:0;bottom:0;background:var(--snowcap);border-top:2px solid var(--blue)}
@@ -365,7 +395,7 @@ const word = (c, day=true) => (c === 'clear' && !day) ? 'Clear' : WORD[c];
 
 /* ---------- Bauhaus icons (pure geometry) ---------- */
 // Six-armed snowflake; branch ticks only when it is big enough to read.
-function flake(x, y, r, color, sw = 3, branches = r >= 9){
+function flake(x, y, r, color, sw = 3, branches = r >= 9, attrs = ''){
   let d = '';
   for (let k = 0; k < 6; k++){
     const a = Math.PI/2 + k*Math.PI/3, ex = x + r*Math.cos(a), ey = y - r*Math.sin(a);
@@ -375,43 +405,45 @@ function flake(x, y, r, color, sw = 3, branches = r >= 9){
       [a + Math.PI/4, a - Math.PI/4].forEach(b => d += `M${bx.toFixed(2)} ${by.toFixed(2)}L${(bx + t*Math.cos(b)).toFixed(2)} ${(by - t*Math.sin(b)).toFixed(2)}`);
     }
   }
-  return `<path d="${d}" stroke="${color}" stroke-width="${branches ? sw*0.8 : sw}" stroke-linecap="butt" fill="none"/>`;
+  return `<path ${attrs} d="${d}" stroke="${color}" stroke-width="${branches ? sw*0.8 : sw}" stroke-linecap="butt" fill="none"/>`;
 }
 function icon(c, day = true, sev = 2){
   const Y='var(--yellow)', R='var(--red)', B='var(--blue)', G='var(--grey)', D='var(--cloud-dark)', I='var(--ink)', W='var(--snow)';
+  const fl = (x, y, r, sw, i) => flake(x, y, r, B, sw, undefined, `class="a-flake" style="--i:${i}"`);
+  const drop = (x, y, i) => `<path class="a-drop" style="--i:${i}" d="M${x} ${y} l8 0 l-6 20 l-8 0 Z" fill="${B}"/>`;
   let g = '';
   switch(c){
     case 'clear':
       g = day
-        ? `<circle cx="50" cy="50" r="34" fill="${Y}"/><circle cx="50" cy="50" r="10" fill="${R}"/>`
-        : `<path d="M50 14 A36 36 0 0 0 50 86 Z" fill="${Y}"/><circle cx="72" cy="30" r="5" fill="${I}"/><rect x="66" y="62" width="10" height="10" fill="${R}"/>`;
+        ? `<circle class="a-ring" cx="50" cy="50" r="34" fill="none" stroke="${Y}" stroke-width="3" opacity="0"/><circle class="a-sun" cx="50" cy="50" r="34" fill="${Y}"/><circle class="a-core" cx="50" cy="50" r="10" fill="${R}"/>`
+        : `<path class="a-moon" d="M50 14 A36 36 0 0 0 50 86 Z" fill="${Y}"/><circle class="a-twinkle" cx="72" cy="30" r="5" fill="${I}"/><rect class="a-twinkle" style="--i:1" x="66" y="62" width="10" height="10" fill="${R}"/>`;
       break;
     case 'partly':
-      g = (day ? `<circle cx="62" cy="38" r="24" fill="${Y}"/>` : `<path d="M62 14 A24 24 0 0 0 62 62 Z" fill="${Y}"/>`)
-        + `<path d="M14 76 A22 22 0 0 1 58 76 Z" fill="${G}"/><rect x="14" y="76" width="64" height="10" fill="${G}"/><path d="M40 76 A19 19 0 0 1 78 76 Z" fill="${G}"/>`;
+      g = (day ? `<circle class="a-peek" cx="62" cy="38" r="24" fill="${Y}"/>` : `<path class="a-peek" d="M62 14 A24 24 0 0 0 62 62 Z" fill="${Y}"/>`)
+        + `<g class="a-drift-r"><path d="M14 76 A22 22 0 0 1 58 76 Z" fill="${G}"/><rect x="14" y="76" width="64" height="10" fill="${G}"/><path d="M40 76 A19 19 0 0 1 78 76 Z" fill="${G}"/></g>`;
       break;
     case 'cloudy':
-      g = `<path d="M10 66 A24 24 0 0 1 58 66 Z" fill="${D}"/><path d="M36 66 A28 28 0 0 1 92 66 Z" fill="${G}"/><rect x="10" y="66" width="82" height="12" fill="${G}"/>`;
+      g = `<path class="a-drift-l" d="M10 66 A24 24 0 0 1 58 66 Z" fill="${D}"/><g class="a-drift-r"><path d="M36 66 A28 28 0 0 1 92 66 Z" fill="${G}"/><rect x="10" y="66" width="82" height="12" fill="${G}"/></g>`;
       break;
     case 'fog':
-      g = `<circle cx="50" cy="42" r="26" fill="${Y}" opacity=".9"/><rect x="12" y="44" width="76" height="8" fill="${G}"/><rect x="22" y="58" width="66" height="8" fill="${G}"/><rect x="12" y="72" width="54" height="8" fill="${G}"/>`;
+      g = `<circle class="a-sun" cx="50" cy="42" r="26" fill="${Y}" opacity=".9"/><rect class="a-fog" x="12" y="44" width="76" height="8" fill="${G}"/><rect class="a-fog" style="--dx:-7px" x="22" y="58" width="66" height="8" fill="${G}"/><rect class="a-fog" style="--dx:9px" x="12" y="72" width="54" height="8" fill="${G}"/>`;
       break;
     case 'rain':
-      g = `<path d="M12 52 A26 26 0 0 1 64 52 Z" fill="${G}"/><path d="M40 52 A24 24 0 0 1 88 52 Z" fill="${D}"/><rect x="12" y="52" width="76" height="6" fill="${D}"/>`
-        + [24,46,68].map((x,i)=>`<path d="M${x} ${66+(i%2)*4} l8 0 l-6 20 l-8 0 Z" fill="${B}"/>`).join('');
+      g = `<g class="a-bob"><path d="M12 52 A26 26 0 0 1 64 52 Z" fill="${G}"/><path d="M40 52 A24 24 0 0 1 88 52 Z" fill="${D}"/><rect x="12" y="52" width="76" height="6" fill="${D}"/></g>`
+        + [24,46,68].map((x,i) => drop(x, 66+(i%2)*4, i)).join('');
       break;
     case 'snow': {
       const cl = sev === 3 ? D : G;
       const flakes = sev === 1 ? [[32,75,12],[68,75,12]] : sev === 2 ? [[28,70,9.5],[72,70,9.5],[50,77,9.5],[30,93,6],[70,93,6]] : [[22,66,6.5],[42,66,6.5],[62,66,6.5],[82,66,6.5],[32,80,6.5],[52,80,6.5],[72,80,6.5],[42,94,6.5],[62,94,6.5]];
-      g = `<path d="M12 50 A26 26 0 0 1 64 50 Z" fill="${G}"/><path d="M40 50 A24 24 0 0 1 88 50 Z" fill="${cl}"/><rect x="12" y="50" width="76" height="6" fill="${cl}"/>`
-        + flakes.map(([x,y,r]) => flake(x, y, r, B, sev === 3 ? 2.6 : 3)).join('');
+      g = `<g class="a-bob"><path d="M12 50 A26 26 0 0 1 64 50 Z" fill="${G}"/><path d="M40 50 A24 24 0 0 1 88 50 Z" fill="${cl}"/><rect x="12" y="50" width="76" height="6" fill="${cl}"/></g>`
+        + flakes.map(([x,y,r], i) => fl(x, y, r, sev === 3 ? 2.6 : 3, i)).join('');
       break; }
     case 'sleet':
-      g = `<path d="M12 50 A26 26 0 0 1 64 50 Z" fill="${G}"/><path d="M40 50 A24 24 0 0 1 88 50 Z" fill="${D}"/><rect x="12" y="50" width="76" height="6" fill="${D}"/>`
-        + `<path d="M26 64 l8 0 l-6 20 l-8 0 Z" fill="${B}"/>${flake(50, 74, 9, B)}<path d="M68 64 l8 0 l-6 20 l-8 0 Z" fill="${B}"/>${flake(38, 93, 6, B, 2.6)}${flake(62, 93, 6, B, 2.6)}`;
+      g = `<g class="a-bob"><path d="M12 50 A26 26 0 0 1 64 50 Z" fill="${G}"/><path d="M40 50 A24 24 0 0 1 88 50 Z" fill="${D}"/><rect x="12" y="50" width="76" height="6" fill="${D}"/></g>`
+        + drop(26, 64, 0) + fl(50, 74, 9, 3, 1) + drop(68, 64, 2) + fl(38, 93, 6, 2.6, 3) + fl(62, 93, 6, 2.6, 4);
       break;
     case 'storm':
-      g = `<path d="M10 52 A26 26 0 0 1 62 52 Z" fill="${D}"/><path d="M38 52 A26 26 0 0 1 90 52 Z" fill="${D}"/><rect x="10" y="52" width="80" height="6" fill="${D}"/><path d="M52 58 L36 80 L50 80 L42 98 L66 72 L52 72 L60 58 Z" fill="${R}"/>`;
+      g = `<g class="a-bob"><path d="M10 52 A26 26 0 0 1 62 52 Z" fill="${D}"/><path d="M38 52 A26 26 0 0 1 90 52 Z" fill="${D}"/><rect x="10" y="52" width="80" height="6" fill="${D}"/></g><path class="a-bolt" d="M52 58 L36 80 L50 80 L42 98 L66 72 L52 72 L60 58 Z" fill="${R}"/>`;
       break;
     default:
       g = `<circle cx="50" cy="50" r="30" fill="none" stroke="var(--faint)" stroke-width="2" stroke-dasharray="4 5"/>`;
@@ -569,7 +601,7 @@ function renderGrid(){
   for (let i=0;i<42;i++){
     const k = keyOf(y,m,1-offset+i), dt = parseKey(k), day = S.days[k];
     const out = dt.getUTCMonth() !== m;
-    const cls = ['cell', out&&'out', day&&day.c==='snow'&&'snowy', day&&day.src==='outlook'&&'outlook', k===S.todayKey&&'today', k===S.selected&&'sel', !day&&'nodata'].filter(Boolean).join(' ');
+    const cls = ['cell', out&&'out', out && k > keyOf(y,m,1) && 'next', day&&day.c==='snow'&&'snowy', day&&day.src==='outlook'&&'outlook', k===S.todayKey&&'today', k===S.selected&&'sel', !day&&'nodata'].filter(Boolean).join(' ');
     const label = `${WD[dt.getUTCDay()]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}`;
     if (day){
       const past = k < S.todayKey;
@@ -631,7 +663,7 @@ function renderSide(){
     </div>
     <div>
       <div class="label" style="margin-bottom:12px">Legend</div>
-      <div class="legend">${['clear','partly','cloudy','rain','snow','sleet','storm','fog'].map(c=>`<div><span style="width:24px;height:24px">${icon(c)}</span>${WORD[c]}</div>`).join('')}<div><span class="lg-outlook"></span>Outlook</div></div>
+      <div class="legend">${['clear','partly','cloudy','rain','snow','sleet','storm','fog'].map(c=>`<div><span style="width:24px;height:24px">${icon(c)}</span>${WORD[c]}</div>`).join('')}<div><span class="lg-outlook">≈</span>Outlook</div></div>
     </div>`;
 }
 
