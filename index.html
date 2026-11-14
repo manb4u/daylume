@@ -480,6 +480,35 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
 .palette .sw i:nth-child(3){width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:16px solid}
 .no-sun .sunarc,.no-week .weekbox,.no-legend .legendbox{display:none}
 .no-motion *,.no-motion *::before,.no-motion *::after{animation:none!important}
+/* Day view entrance, bento style: cards rise in one after another, then their contents settle —
+   bars fill, numbers count up (JS), the temperature line draws itself and chart marks pop in.
+   Only on opening a day or moving to another day, never on a plain re-render. */
+.stats .stat:nth-child(1){--i:1}.stats .stat:nth-child(2){--i:2}.stats .stat:nth-child(3){--i:3}
+.stats .stat:nth-child(4){--i:4}.stats .stat:nth-child(5){--i:5}.stats .stat:nth-child(6){--i:6}
+@media (prefers-reduced-motion:no-preference){
+  .sheet.enter :is(.chart,.stat){--d:calc(var(--i,0) * 70ms + 90ms);animation:bento-in .62s cubic-bezier(.2,.8,.2,1) var(--d) both}
+  .sheet.enter .chart .top,.sheet.enter .stat .h{animation:bento-text .5s cubic-bezier(.2,.8,.2,1) calc(var(--d) + 120ms) both}
+  .sheet.enter .stat .v{animation:bento-text .55s cubic-bezier(.2,.8,.2,1) calc(var(--d) + 170ms) both}
+  .sheet.enter .stat .s{animation:bento-text .55s cubic-bezier(.2,.8,.2,1) calc(var(--d) + 260ms) both}
+  .sheet.enter .stat .meter i{transform-origin:left center;animation:bento-bar 1s cubic-bezier(.22,.9,.24,1) calc(var(--d) + 260ms) both}
+  .sheet.enter :is(.c-sun,.c-bar,.c-dot,.c-range,.c-lbl){transform-box:fill-box}
+  .sheet.enter .c-sun{transform-origin:left center;animation:bento-bar .9s cubic-bezier(.22,.9,.24,1) .25s both}
+  .sheet.enter .c-area{animation:bento-fade .8s ease-out .7s both}
+  .sheet.enter .c-line{stroke-dasharray:1;animation:bento-draw 1.2s cubic-bezier(.45,.05,.25,1) .3s both}
+  .sheet.enter .c-bar{transform-origin:center bottom;animation:bento-grow .6s cubic-bezier(.2,.8,.2,1) calc(.35s + var(--j,0) * 28ms) both}
+  .sheet.enter .c-fade{animation:bento-fade .5s ease-out calc(.3s + var(--j,0) * 30ms) both}
+  .sheet.enter .c-lbl{animation:bento-text .5s cubic-bezier(.2,.8,.2,1) calc(.4s + var(--j,0) * 45ms) both}
+  .sheet.enter .c-dot{transform-origin:center;animation:bento-pop .5s cubic-bezier(.3,1.5,.5,1) calc(.45s + var(--j,0) * 40ms) both}
+  .sheet.enter .c-range{transform-origin:center;animation:bento-bar .7s cubic-bezier(.22,.9,.24,1) .3s both}
+  .sheet.enter .c-now{animation:bento-fade .5s ease-out 1.2s both}
+}
+@keyframes bento-in{from{opacity:0;transform:translateY(22px) scale(.96)}}
+@keyframes bento-text{from{opacity:0;transform:translateY(8px);filter:blur(4px)}}
+@keyframes bento-bar{from{transform:scaleX(0)}}
+@keyframes bento-grow{from{transform:scaleY(0)}}
+@keyframes bento-pop{from{opacity:0;transform:scale(0)}}
+@keyframes bento-fade{from{opacity:0}}
+@keyframes bento-draw{from{stroke-dashoffset:1}}
 /* Colour palettes (primaries only; tints and greys stay) */
 [data-palette="punch"],[data-palette="punch"] [data-theme="light"],[data-palette="punch"] [data-theme="dark"],[data-palette="punch"][data-theme="dark"]{--red:#B8D957;--yellow:#FF8C42;--blue:#7545A8}
 /* lime is light: text that normally sits in white on the accent turns dark */
@@ -1260,7 +1289,7 @@ function renderSide(){
 
 /* ---------- Focus view ---------- */
 function openFocus(k){ S.selected = k; renderGrid(); renderFocus(); $('#focus').classList.add('open'); if(!SNAP) history.replaceState(null,'',`#${k}`); }
-function closeFocus(){ S.selected = null; $('#focus').classList.remove('open'); renderGrid(); if(!SNAP) history.replaceState(null,'',location.pathname+location.search); }
+function closeFocus(){ S.selected = null; S.enterKey = null; $('#focus').classList.remove('open'); renderGrid(); if(!SNAP) history.replaceState(null,'',location.pathname+location.search); }
 function chart(day){
   const hs = day.hours; if (!hs.length) return '';
   const W = 720, H = 230, top = 58, bot = 170, step = W/24;
@@ -1274,19 +1303,19 @@ function chart(day){
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Hourly temperature and chance of rain">`;
   // sunlight band
   const toH = iso => +iso.slice(11,13) + +iso.slice(14,16)/60;
-  s += `<rect x="${toH(day.sunrise)*step}" y="${top-6}" width="${(toH(day.sunset)-toH(day.sunrise))*step}" height="${bot-top+6}" fill="var(--yellow)" opacity=".12"/>`;
-  s += `<path d="${area}" fill="var(--ink)" opacity=".05"/><path d="${line}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += `<rect x="${toH(day.sunrise)*step}" y="${top-6}" width="${(toH(day.sunset)-toH(day.sunrise))*step}" height="${bot-top+6}" fill="var(--yellow)" opacity=".12" class="c-sun"/>`;
+  s += `<path d="${area}" fill="var(--ink)" opacity=".05" class="c-area"/><path d="${line}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" pathLength="1" class="c-line"/>`;
   hs.forEach((h,i)=>{ const x = step*i+step/2;
     const pv = h.pp ?? (h.mm ? Math.min(100, h.mm*40) : 0);
-    if (pv) s += `<rect x="${x-step*0.32}" y="${H-28-pv*0.32}" width="${step*0.64}" height="${pv*0.32}" fill="var(--blue)" opacity="${.35+pv/160}"/>`;
+    if (pv) s += `<rect x="${x-step*0.32}" y="${H-28-pv*0.32}" width="${step*0.64}" height="${pv*0.32}" fill="var(--blue)" opacity="${.35+pv/160}" class="c-bar" style="--j:${i}"/>`;
     if (i%3===0){
-      s += `<g transform="translate(${x-13} 4)"><svg width="26" height="26" viewBox="0 0 100 100">${icon(cat(h.code), !!h.day, sevOf(h.code)).replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g>`;
+      s += `<g transform="translate(${x-13} 4)" class="c-fade" style="--j:${i}"><svg width="26" height="26" viewBox="0 0 100 100">${icon(cat(h.code), !!h.day, sevOf(h.code)).replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g>`;
       s += `<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="Jost, sans-serif">${S.set.time === '24' ? pad(i) : (i % 12 || 12) + (i < 12 ? 'a' : 'p')}</text>`;
-      s += `<text x="${x}" y="${pts[i][1]-12}" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)" font-family="Jost, sans-serif">${Math.round(temps[i])}°</text>`;
+      s += `<text x="${x}" y="${pts[i][1]-12}" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)" font-family="Jost, sans-serif" class="c-lbl" style="--j:${i}">${Math.round(temps[i])}°</text>`;
     }
   });
-  s += `<circle cx="${pts[iMax][0]}" cy="${pts[iMax][1]}" r="5" fill="var(--red)"/><circle cx="${pts[iMin][0]}" cy="${pts[iMin][1]}" r="5" fill="var(--blue)"/>`;
-  if (nowH != null){ const x = nowH*step; s += `<line x1="${x}" y1="${top-6}" x2="${x}" y2="${H-24}" stroke="var(--red)" stroke-width="2"/><rect x="${x-18}" y="${top-24}" width="36" height="16" rx="8" fill="var(--red)"/><text x="${x}" y="${top-12}" text-anchor="middle" font-size="10" font-weight="600" fill="#fff" font-family="Jost, sans-serif">NOW</text>`; }
+  s += `<circle cx="${pts[iMax][0]}" cy="${pts[iMax][1]}" r="5" fill="var(--red)" class="c-dot" style="--j:${iMax}"/><circle cx="${pts[iMin][0]}" cy="${pts[iMin][1]}" r="5" fill="var(--blue)" class="c-dot" style="--j:${iMin}"/>`;
+  if (nowH != null){ const x = nowH*step; s += `<g class="c-now"><line x1="${x}" y1="${top-6}" x2="${x}" y2="${H-24}" stroke="var(--red)" stroke-width="2"/><rect x="${x-18}" y="${top-24}" width="36" height="16" rx="8" fill="var(--red)"/><text x="${x}" y="${top-12}" text-anchor="middle" font-size="10" font-weight="600" fill="#fff" font-family="Jost, sans-serif">NOW</text></g>`; }
   s += `<line x1="0" y1="${H-24}" x2="${W}" y2="${H-24}" stroke="var(--line)" stroke-width="1"/></svg>`;
   return s;
 }
@@ -1297,10 +1326,10 @@ function spreadChart(day){
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spread of ${day.runs} model runs for high and low temperature">`;
   const row = (vals, y, color, label) => {
     s += `<text x="0" y="${y+4}" font-size="11" font-weight="600" letter-spacing="1.5" fill="var(--muted)" font-family="Jost, sans-serif">${label}</text>`;
-    s += `<line x1="${x(Math.min(...vals))}" y1="${y}" x2="${x(Math.max(...vals))}" y2="${y}" stroke="${color}" stroke-width="2" opacity=".35"/>`;
-    vals.forEach((v,i) => s += `<circle cx="${x(v).toFixed(1)}" cy="${(y + ((i % 3) - 1) * 7).toFixed(1)}" r="5.5" fill="${color}" opacity=".5"/>`);
+    s += `<line x1="${x(Math.min(...vals))}" y1="${y}" x2="${x(Math.max(...vals))}" y2="${y}" stroke="${color}" stroke-width="2" opacity=".35" class="c-range"/>`;
+    vals.forEach((v,i) => s += `<circle cx="${x(v).toFixed(1)}" cy="${(y + ((i % 3) - 1) * 7).toFixed(1)}" r="5.5" fill="${color}" opacity=".5" class="c-dot" style="--j:${i}"/>`);
     const m = mean(vals);
-    s += `<rect x="${x(m)-1.5}" y="${y-20}" width="3" height="40" fill="var(--ink)"/><text x="${x(m)}" y="${y-26}" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)" font-family="Jost, sans-serif">${Math.round(m)}°</text>`;
+    s += `<g class="c-now"><rect x="${x(m)-1.5}" y="${y-20}" width="3" height="40" fill="var(--ink)"/><text x="${x(m)}" y="${y-26}" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)" font-family="Jost, sans-serif">${Math.round(m)}°</text></g>`;
   };
   row(tx, 64, 'var(--red)', 'HIGH'); row(tn, 146, 'var(--blue)', 'LOW');
   const step = (hi - lo) > 16 ? 4 : 2;
@@ -1490,6 +1519,27 @@ function renderFocus(){
         ${stat('Range', tr('var(--red)'), Math.round(tconv(day.tmax)-tconv(day.tmin)), '°', `From ${T(day.tmin)} to ${T(day.tmax)}`)}
       </div>
     </section>`;
+  const enter = S.enterKey !== k; S.enterKey = k;
+  $('#sheet').classList.toggle('enter', enter);
+  if (enter) countUp($('#sheet'));
+}
+// Count the numbers in each tile up from zero, timed with the tile's entrance (keeps leading zeros, decimals and units)
+function countUp(root){
+  if (SNAP || !S.set.motion || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+  root.querySelectorAll('.stat .v').forEach((v, n) => {
+    const node = [...v.childNodes].find(c => c.nodeType === 3 && /\d/.test(c.nodeValue)); if (!node) return;
+    const src = node.nodeValue, parts = [...src.matchAll(/\d+(?:\.\d+)?/g)];
+    // later groups (minutes) and zero-led groups keep their width, so 07:26 runs 00:00 → 07:26
+    const fmt = p => { let g = 0; return src.replace(/\d+(?:\.\d+)?/g, m => { const dec = (m.split('.')[1] || '').length, val = parseFloat(m) * p;
+      return dec ? val.toFixed(dec) : String(Math.round(val)).padStart(g++ || m[0] === '0' ? m.length : 1, '0'); }); };
+    if (!parts.length) return;
+    const delay = (n + 1) * 70 + 90 + 170, dur = 900, t0 = performance.now() + delay;
+    node.nodeValue = fmt(0);
+    const tick = now => { if (!node.isConnected) return;
+      const p = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(1 - p, 3);
+      node.nodeValue = p >= 1 ? src : fmt(e); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
 }
 
 /* ---------- Location ---------- */
