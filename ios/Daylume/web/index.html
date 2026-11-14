@@ -724,6 +724,19 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
 
   /* Calendar: weekday row sticks while the days scroll */
   .dow{position:sticky;top:0;z-index:6;background:var(--bg);border-top:1px solid var(--line)}
+  /* Home: everything down to the weekday row stays put; only the days scroll */
+  html.tab-home,html.tab-home body{height:100%;overflow:hidden}
+  .tab-home .app{height:100vh;height:100dvh;overflow:hidden;padding-bottom:0;grid-template-rows:auto auto auto minmax(0,1fr) auto auto auto}
+  .tab-home main{min-height:0}
+  .grid.strip{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;grid-template-rows:none;grid-auto-rows:minmax(84px,auto);padding-bottom:calc(92px + env(safe-area-inset-bottom,0px));scrollbar-width:none}
+  .grid.strip::-webkit-scrollbar{display:none}
+  .grid.strip .cell.pad{pointer-events:none;background:none}
+  /* month edges drawn as a step line; days outside the month in the title are quieter */
+  .grid.strip .cell.mt{box-shadow:inset 0 1.5px 0 color-mix(in srgb,var(--ink) 45%,transparent)}
+  .grid.strip .cell.ml{box-shadow:inset 0 1.5px 0 color-mix(in srgb,var(--ink) 45%,transparent),inset 1.5px 0 0 color-mix(in srgb,var(--ink) 45%,transparent)}
+  .grid.strip .cell.m1::after{content:attr(data-mon);position:absolute;top:8px;right:6px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+  .grid.strip .cell>*{opacity:.4;transition:opacity .25s}
+  .grid.strip .cell.sel{box-shadow:inset 0 0 0 2px var(--ink)}
 
   /* Search as a bottom sheet */
   .search-open .search{position:fixed;left:0;right:0;top:max(6dvh,40px);bottom:0;z-index:85;display:flex;flex-direction:column;gap:12px;padding:64px 16px calc(16px + env(safe-area-inset-bottom,0px));background:var(--surface);border-radius:24px 24px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.2)}
@@ -847,6 +860,7 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
 <div class="focus" id="places" aria-modal="true" role="dialog" aria-label="Saved locations"><div class="psheet" id="psheet"></div></div>
 <div class="focus" id="settings" aria-modal="true" role="dialog" aria-label="Settings"><div class="ssheet" id="ssheet"></div></div>
 <div class="scrim" id="scrim" hidden></div>
+<style id="stripAct"></style>
 <nav class="tabbar" id="tabbar" aria-label="Sections">
   <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" stroke-linejoin="round"/></svg><span>Home</span></button>
   <button data-tab="info" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg><span>Info</span></button>
@@ -1161,7 +1175,7 @@ async function load(loc){
   S.days = index(S.data, arch.value, S.set.outlook ? ens.value : null);
   if (arch.status !== 'fulfilled' || ens.status !== 'fulfilled') toast(arch.status !== 'fulfilled' ? 'Past-year history is unavailable right now.' : 'The 1-month outlook is unavailable right now.');
   S.todayKey = S.data.current.time.slice(0,10);
-  if (!S.view){ const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() };
+  if (!S.view){ S.stripJump = true; S.stripEnd = 0; S.stripActive = null; const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() };
     if (SNAP && params.get('month')) { const [yy, mm] = params.get('month').split('-').map(Number); S.view = { y:yy, m:mm-1 }; } }
   if (!SNAP) store.set('wc.loc', loc);
   applyTheme(); render();
@@ -1192,31 +1206,29 @@ const nextKey = k => { const d = parseKey(k); d.setUTCDate(d.getUTCDate()+1); re
 const prevKey = k => { const d = parseKey(k); d.setUTCDate(d.getUTCDate()-1); return d.toISOString().slice(0,10); };
 
 /* ---------- Render: header + month ---------- */
-function render(){
+function monthHeader(){
   const {y,m} = S.view;
   $('#monthTitle').innerHTML = `${MONTHS[m]} <span>${y}</span>`;
   $('#prevBtn').disabled = !S.minKey || keyOf(y,m,1) <= S.minKey;
   const tk = S.todayKey ? parseKey(S.todayKey) : null;   // calendar reaches 100 years ahead; weather only where data exists
   $('#nextBtn').disabled = !tk || (y*12 + m) >= (tk.getUTCFullYear() + 100)*12 + tk.getUTCMonth();
+}
+function render(){
+  monthHeader();
   const dows = ['MON','TUE','WED','THU','FRI','SAT','SUN']; if (S.set.week === 'sun') dows.unshift(dows.pop());
   $('#dow').innerHTML = dows.map(d => `<div>${d}</div>`).join('');
   document.querySelectorAll('#unitSeg button').forEach(b => b.classList.toggle('on', b.dataset.u === S.unit));
   renderSide(); renderGrid();
   if (S.selected) renderFocus();
 }
-function renderGrid(){
-  const {y,m} = S.view;
-  const first = new Date(Date.UTC(y,m,1));
-  const offset = S.set.week === 'sun' ? first.getUTCDay() : (first.getUTCDay()+6)%7;
-  let html = '';
-  for (let i=0;i<42;i++){
-    const k = keyOf(y,m,1-offset+i), dt = parseKey(k), day = S.days[k];
-    const out = dt.getUTCMonth() !== m;
-    const cls = ['cell', out&&'out', out && k > keyOf(y,m,1) && 'next', day&&day.c==='snow'&&'snowy', day&&day.src==='outlook'&&'outlook', k===S.todayKey&&'today', k===S.selected&&'sel', !day&&'nodata'].filter(Boolean).join(' ');
+// One calendar cell. out/next: belongs to a neighbouring month (desktop grid); extra/attrs: phone strip markers
+function cellHTML(k, out, next, extra = '', attrs = ''){
+    const dt = parseKey(k), day = S.days[k]; let html = '';
+    const cls = ['cell', out&&'out', next&&'next', extra, day&&day.c==='snow'&&'snowy', day&&day.src==='outlook'&&'outlook', k===S.todayKey&&'today', k===S.selected&&'sel', !day&&'nodata'].filter(Boolean).join(' ');
     const label = `${WD[dt.getUTCDay()]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}`;
     if (day){
       const past = k < S.todayKey;
-      html += `<button class="${cls}" data-k="${k}" aria-label="${label}, ${dayWord(day)}, high ${T(day.tmax)}${day.snow>=0.1?`, ${day.snow.toFixed(1)} cm snow`:''}" style="${out?'':`background-color:var(--t-${tintOf(day)});`}${!out && day.snow >= 0.5 ? `padding-bottom:${capH(day)+10}px` : ''}">
+      html += `<button class="${cls}" data-k="${k}"${attrs} aria-label="${label}, ${dayWord(day)}, high ${T(day.tmax)}${day.snow>=0.1?`, ${day.snow.toFixed(1)} cm snow`:''}" style="${out?'':`background-color:var(--t-${tintOf(day)});`}${!out && day.snow >= 0.5 ? `padding-bottom:${capH(day)+10}px` : ''}">
         ${!out && day.snow >= 0.5 ? `<span class="snowcap" style="height:${capH(day)}px"></span>` : ''}
         <span class="d">${dt.getUTCDate()}</span>
         <span class="ic">${icon(day.c, true, day.sev)}</span>
@@ -1229,10 +1241,75 @@ function renderGrid(){
       </button>`;
     } else {
       const none = k > S.todayKey ? 'Available soon' : 'Before history';
-      html += `<div class="${cls}" aria-label="${label}, ${none.toLowerCase()}"><span class="d">${dt.getUTCDate()}</span><span class="hatch"></span><span class="wx"><span class="c">${none}</span></span></div>`;
+      html += `<div class="${cls}"${attrs} aria-label="${label}, ${none.toLowerCase()}"><span class="d">${dt.getUTCDate()}</span><span class="hatch"></span><span class="wx"><span class="c">${none}</span></span></div>`;
     }
+    return html;
+}
+function renderGrid(){
+  if (isPhone()) return renderStrip();
+  $('#grid').classList.remove('strip');
+  const {y,m} = S.view;
+  const first = new Date(Date.UTC(y,m,1));
+  const offset = S.set.week === 'sun' ? first.getUTCDay() : (first.getUTCDay()+6)%7;
+  let html = '';
+  for (let i=0;i<42;i++){
+    const k = keyOf(y,m,1-offset+i), out = parseKey(k).getUTCMonth() !== m;
+    html += cellHTML(k, out, out && k > keyOf(y,m,1));
   }
   $('#grid').innerHTML = html;
+}
+/* Phone: one continuous, vertically scrolling run of weeks. The month title follows whichever month
+   has more than half of its days in view; ‹ › and Today scroll to a month instead of re-rendering. */
+const MON3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const moKey = (y, m) => y*12 + m;
+function stripBounds(){
+  const t = parseKey(S.todayKey), tm = moKey(t.getUTCFullYear(), t.getUTCMonth()), cap = tm + 1200;
+  const mn = S.minKey ? parseKey(S.minKey) : null, start = mn ? moKey(mn.getUTCFullYear(), mn.getUTCMonth()) : tm - 12;
+  S.stripEnd = Math.min(cap, Math.max(S.stripEnd || 0, tm + 12, moKey(S.view.y, S.view.m) + 2));
+  return { start, end: S.stripEnd, cap };
+}
+function renderStrip(){
+  const g = $('#grid'), keep = g.classList.contains('strip') && !S.stripJump ? g.scrollTop : null;
+  const { start, end } = stripBounds();
+  const f = new Date(Date.UTC(Math.floor(start/12), start%12, 1));
+  const lead = S.set.week === 'sun' ? f.getUTCDay() : (f.getUTCDay()+6)%7;
+  const last = keyOf(Math.floor(end/12), end%12 + 1, 0);
+  let html = '', k = keyOf(f.getUTCFullYear(), f.getUTCMonth(), 1 - lead), i = 0;
+  while (i % 7 || k <= last){
+    const d = parseKey(k), mo = moKey(d.getUTCFullYear(), d.getUTCMonth()), dd = d.getUTCDate();
+    if (mo < start || mo > end) html += `<div class="cell pad" aria-hidden="true"></div>`;
+    else html += cellHTML(k, false, false, [dd <= 7 && 'mt', dd === 1 && i % 7 && 'ml', dd === 1 && 'm1'].filter(Boolean).join(' '),
+      ` data-mo="${mo}"${dd === 1 ? ` data-mon="${MON3[d.getUTCMonth()]}"` : ''}`);
+    k = nextKey(k); i++;
+  }
+  g.classList.add('strip'); g.innerHTML = html;
+  if (keep != null) g.scrollTop = keep; else stripScrollTo(moKey(S.view.y, S.view.m), false);
+  S.stripJump = false; stripActive(true);
+}
+function stripScrollTo(mo, smooth = true){
+  const g = $('#grid'), c = g.querySelector(`[data-mo="${mo}"]`); if (!c) return;
+  const top = c.offsetTop - g.offsetTop;   // the row holding the 1st of that month
+  if (smooth) g.scrollTo({ top, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); else g.scrollTop = top;
+}
+function stripActive(force){
+  const g = $('#grid'); if (!g.classList.contains('strip') || !g.clientHeight) return;
+  const vt = g.getBoundingClientRect().top, vb = vt + g.clientHeight, seen = {}, total = {}, cells = g.children;
+  for (let r = 0; r < cells.length; r += 7){
+    const rc = cells[r].getBoundingClientRect(), vis = Math.max(0, Math.min(rc.bottom, vb) - Math.max(rc.top, vt)) / (rc.height || 1);
+    for (let j = r; j < r + 7 && j < cells.length; j++){ const mo = cells[j].dataset.mo; if (mo == null) continue;
+      total[mo] = (total[mo] || 0) + 1; if (vis) seen[mo] = (seen[mo] || 0) + vis; }
+  }
+  let best = null, bf = 0;
+  for (const mo in seen){ const fr = seen[mo] / total[mo]; if (fr > bf){ bf = fr; best = +mo; } }
+  if (best != null && (bf > .5 || (force && S.stripActive == null))) setStripMonth(best);
+  else if (force && S.stripActive != null) setStripMonth(S.stripActive, true);
+  if (g.scrollTop + g.clientHeight > g.scrollHeight - 700){ const { end, cap } = stripBounds(); if (end < cap){ S.stripEnd = Math.min(cap, end + 12); renderStrip(); } }
+}
+function setStripMonth(mo, again){
+  if (S.stripActive === mo && !again) return;
+  S.stripActive = mo; S.view = { y: Math.floor(mo/12), m: mo % 12 };
+  $('#stripAct').textContent = `.grid.strip .cell[data-mo="${mo}"]>*{opacity:1}`;
+  monthHeader();
 }
 function renderSide(){
   const swKeep = $('#side .sw-list')?.scrollTop;
@@ -1289,7 +1366,7 @@ function renderSide(){
 
 /* ---------- Focus view ---------- */
 function openFocus(k){ S.selected = k; renderGrid(); renderFocus(); $('#focus').classList.add('open'); if(!SNAP) history.replaceState(null,'',`#${k}`); }
-function closeFocus(){ S.selected = null; S.enterKey = null; $('#focus').classList.remove('open'); renderGrid(); if(!SNAP) history.replaceState(null,'',location.pathname+location.search); }
+function closeFocus(){ S.selected = null; S.enterKey = null; $('#focus').classList.remove('open'); renderGrid(); if (isPhone() && S.stripActive != null) setStripMonth(S.stripActive, true); if(!SNAP) history.replaceState(null,'',location.pathname+location.search); }
 function chart(day){
   const hs = day.hours; if (!hs.length) return '';
   const W = 720, H = 230, top = 58, bot = 170, step = W/24;
@@ -1811,9 +1888,16 @@ document.addEventListener('click', e => {
 document.addEventListener('click', e => { if (!e.target.closest('.search')) $('#results').hidden = true; });
 
 /* ---------- Events ---------- */
-$('#prevBtn').onclick = () => { if ($('#prevBtn').disabled) return; let {y,m} = S.view; m--; if(m<0){m=11;y--;} S.view={y,m}; render(); };
-$('#nextBtn').onclick = () => { if ($('#nextBtn').disabled) return; let {y,m} = S.view; m++; if(m>11){m=0;y++;} S.view={y,m}; render(); };
-$('#todayBtn').onclick = () => { const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() }; render(); };
+function stripGo(mo){   // phone: scroll to a month; repeated taps during the scroll keep stepping
+  clearTimeout(S.stripT); S.stripTarget = mo; S.stripT = setTimeout(() => { S.stripTarget = null; stripActive(); }, 800);
+  const { cap } = stripBounds(); if (mo > S.stripEnd - 1 && mo <= cap){ S.stripEnd = Math.min(cap, mo + 2); renderStrip(); }
+  setStripMonth(mo); stripScrollTo(mo);
+}
+const stripCur = () => S.stripTarget ?? moKey(S.view.y, S.view.m);
+$('#prevBtn').onclick = () => { if ($('#prevBtn').disabled) return; if (isPhone()) return stripGo(stripCur() - 1); let {y,m} = S.view; m--; if(m<0){m=11;y--;} S.view={y,m}; render(); };
+$('#nextBtn').onclick = () => { if ($('#nextBtn').disabled) return; if (isPhone()) return stripGo(stripCur() + 1); let {y,m} = S.view; m++; if(m>11){m=0;y++;} S.view={y,m}; render(); };
+$('#todayBtn').onclick = () => { const t = parseKey(S.todayKey); if (isPhone()) return stripGo(moKey(t.getUTCFullYear(), t.getUTCMonth())); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() }; render(); };
+$('#grid').addEventListener('scroll', () => { if (S.stripTarget != null || S.stripRaf) return; S.stripRaf = requestAnimationFrame(() => { S.stripRaf = 0; stripActive(); }); }, { passive: true });
 $('#unitSeg').onclick = e => { const b = e.target.closest('button'); if(!b) return; S.unit = b.dataset.u; store.set('wc.unit', S.unit); render(); };
 $('#modeChip').onclick = () => { S.themePref = { auto:'light', light:'dark', dark:'auto' }[S.themePref]; store.set('wc.theme', S.themePref); applyTheme(); if ($('#settings').classList.contains('open')) renderSettings(); };
 document.addEventListener('click', e => {
@@ -1851,12 +1935,13 @@ function setTab(t, scroll = true){
   h.classList.toggle('tab-info', t === 'info'); h.classList.toggle('tab-home', t !== 'info');
   if (t === 'info' && S.switcher){ S.switcher = false; renderSide(); }
   updateTabbar(); if (scroll) window.scrollTo(0, 0);
+  if (t !== 'info' && isPhone() && S.view && $('#grid').classList.contains('strip') && !$('#grid').scrollTop) requestAnimationFrame(() => stripScrollTo(S.stripActive ?? moKey(S.view.y, S.view.m), false));
 }
 $('#tabbar').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if (!b) return;
   if (b.dataset.tab === 'settings'){ openSettings(); updateTabbar(); return; }
   if ($('#settings').classList.contains('open')) closeSettings();
-  if (b.dataset.tab === S.tab) window.scrollTo({ top: 0, behavior: 'smooth' }); else setTab(b.dataset.tab);
+  if (b.dataset.tab === S.tab){ if (S.tab !== 'info' && S.todayKey){ const t = parseKey(S.todayKey); stripGo(moKey(t.getUTCFullYear(), t.getUTCMonth())); } else window.scrollTo({ top: 0, behavior: 'smooth' }); } else setTab(b.dataset.tab);
 });
 setTab('home', false);
 function openSearchSheet(){
@@ -1900,7 +1985,7 @@ new MutationObserver(() => document.documentElement.classList.toggle('sheet-lock
   };
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
 })();
-matchMedia('(max-width:640px)').addEventListener?.('change', () => { if (!isPhone()){ closeSearchSheet(); document.documentElement.classList.remove('sheet-lock'); } syncScrim(); });
+matchMedia('(max-width:640px)').addEventListener?.('change', () => { if (!isPhone()){ closeSearchSheet(); document.documentElement.classList.remove('sheet-lock'); } syncScrim(); if (S.view && S.todayKey){ S.stripJump = true; renderGrid(); monthHeader(); } });
 
 applyTheme();
 locate().then(async () => {
