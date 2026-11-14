@@ -42,6 +42,20 @@ daylume also runs as a native macOS app (macOS 13 or later, Apple Silicon and In
 - The app wraps the same `index.html` in a native window. Saved places and settings are kept between launches, links open in your browser, and **View** has Reload and zoom.
 - Inside the app your current location may not be detected automatically; search for your city once and press **Save**.
 
+## iPad and iPhone app
+
+The `ios/` folder is an Xcode project for a native iPadOS/iOS app (iOS 16 or later). It wraps the same `index.html`, follows daylume's light/dark theme in the status bar, supports every orientation and multitasking, and can use your location.
+
+**Install on your iPad (free Apple ID):**
+1. Open `ios/Daylume.xcodeproj` in Xcode.
+2. **Xcode → Settings → Accounts** → add your Apple ID.
+3. Select the **Daylume** target → **Signing & Capabilities** → set **Team** to *Your Name (Personal Team)*. If Xcode says the bundle identifier is taken, change `com.manb4u.daylume` to something unique.
+4. Connect the iPad with a cable, unlock it and tap **Trust**. On the iPad turn on **Settings → Privacy & Security → Developer Mode** and restart when asked.
+5. Pick the iPad at the top of Xcode and press **Run** (⌘R).
+6. First launch only: on the iPad open **Settings → General → VPN & Device Management**, tap your Apple ID and **Trust**.
+
+With a free Apple ID the app works for 7 days, then press **Run** again to renew it; a paid Apple Developer account extends this to a year. After changing `index.html`, run `ios/sync-web.sh` before building.
+
 ## Allow location access
 
 The first time you open daylume, your browser asks: **“Allow daylume to use your location?”**
