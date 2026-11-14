@@ -7,6 +7,8 @@ import WebKit
 let appScheme = "daylume"
 let startURL = URL(string: "\(appScheme)://app/index.html")!
 let selfTest = CommandLine.arguments.contains("--selftest")
+let testQuery = selfTest ? (ProcessInfo.processInfo.environment["DAYLUME_QUERY"] ?? "") : ""
+let testSnap = selfTest ? ProcessInfo.processInfo.environment["DAYLUME_SNAP"] : nil
 
 /// Serves files from Contents/Resources/web inside the app bundle.
 final class BundleSchemeHandler: NSObject, WKURLSchemeHandler {
@@ -32,10 +34,17 @@ final class BundleSchemeHandler: NSObject, WKURLSchemeHandler {
     func webView(_ webView: WKWebView, stop task: WKURLSchemeTask) {}
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
+/// daylume's own palette for the page background (it picks light/dark itself, by sunrise/sunset or the user's choice).
+let pageColors: [String: NSColor] = [
+    "light": NSColor(srgbRed: 0.949, green: 0.933, blue: 0.898, alpha: 1),   // #F2EEE5
+    "dark":  NSColor(srgbRed: 0.059, green: 0.063, blue: 0.075, alpha: 1)    // #0F1013
+]
+
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
     var window: NSWindow!
     var webView: WKWebView!
     let schemeHandler = BundleSchemeHandler()
+    var pageTheme = ""
 
     func applicationDidFinishLaunching(_ note: Notification) {
         buildMenu()
@@ -44,6 +53,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         config.setURLSchemeHandler(schemeHandler, forURLScheme: appScheme)
         config.websiteDataStore = .default()                                    // persistent storage
         config.preferences.isElementFullscreenEnabled = true
+        // Tell the window whenever the page switches between light and dark, so the title bar can follow.
+        let themeWatcher = """
+        (() => {
+          const send = () => window.webkit.messageHandlers.daylumeTheme.postMessage(document.documentElement.dataset.theme || 'light');
+          new MutationObserver(send).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+          send();
+        })();
+        """
+        config.userContentController.addUserScript(WKUserScript(source: themeWatcher, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
+        config.userContentController.add(self, name: "daylumeTheme")
 
         webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = self
@@ -57,23 +76,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
                           styleMask: [.titled, .closable, .miniaturizable, .resizable],
                           backing: .buffered, defer: false)
         window.title = "daylume"
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
         window.minSize = NSSize(width: 380, height: 600)
         window.tabbingMode = .disallowed
-        window.backgroundColor = NSColor(name: nil) { appearance in            // matches the page's paper / night colours
-            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                ? NSColor(srgbRed: 0.059, green: 0.063, blue: 0.075, alpha: 1)
-                : NSColor(srgbRed: 0.949, green: 0.933, blue: 0.898, alpha: 1)
-        }
+        let systemDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        applyTheme(systemDark ? "dark" : "light")                               // until the page reports its own theme
         window.contentView = webView
         window.center()
         window.setFrameAutosaveName("daylume.main")                            // remember size and position
         window.makeKeyAndOrderFront(nil)
 
-        webView.load(URLRequest(url: startURL))
+        webView.load(URLRequest(url: testQuery.isEmpty ? startURL : URL(string: startURL.absoluteString + "?" + testQuery)!))
         NSApp.activate(ignoringOtherApps: true)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
+
+    /// Title bar + window chrome follow the page: same background colour, and light/dark controls to match.
+    func applyTheme(_ theme: String) {
+        let t = theme == "dark" ? "dark" : "light"
+        guard t != pageTheme else { return }
+        pageTheme = t
+        window.appearance = NSAppearance(named: t == "dark" ? .darkAqua : .aqua)
+        window.backgroundColor = pageColors[t]
+    }
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "daylumeTheme", let theme = message.body as? String { applyTheme(theme) }
+    }
 
     // Links that leave the app open in the default browser.
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,
@@ -101,7 +132,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
               storage: (() => { try { localStorage.setItem('wc.selftest','1'); return localStorage.getItem('wc.selftest') === '1'; } catch(e) { return false; } })() })
             """
             webView.evaluateJavaScript(js) { result, error in
-                print("SELFTEST", (result as? String) ?? "error: \(String(describing: error))")
+                print("SELFTEST", (result as? String) ?? "error: \(String(describing: error))", "window:", self.pageTheme,
+                      "titlebarTransparent:", self.window.titlebarAppearsTransparent)
+                if let path = testSnap, let frameView = self.window.contentView?.superview,
+                   let rep = frameView.bitmapImageRepForCachingDisplay(in: frameView.bounds) {
+                    frameView.cacheDisplay(in: frameView.bounds, to: rep)
+                    // the title bar is transparent, so paint the window colour underneath as the window server does
+                    let img = NSImage(size: frameView.bounds.size); img.lockFocus()
+                    self.window.backgroundColor.setFill(); NSRect(origin: .zero, size: img.size).fill()
+                    rep.draw(in: NSRect(origin: .zero, size: img.size)); img.unlockFocus()
+                    if let tiff = img.tiffRepresentation, let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:]) {
+                        try? png.write(to: URL(fileURLWithPath: path))
+                    }
+                }
                 exit(0)
             }
         }
