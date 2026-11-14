@@ -462,12 +462,12 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .no-sun .sunarc,.no-week .weekbox,.no-legend .legendbox{display:none}
 .no-motion *,.no-motion *::before,.no-motion *::after{animation:none!important}
 /* Colour palettes (primaries only; tints and greys stay) */
-[data-palette="pastel"],[data-palette="pastel"] [data-theme="light"]{--red:#E8826F;--yellow:#F2C66B;--blue:#6F93D6}
-[data-palette="pastel"] [data-theme="dark"],[data-palette="pastel"][data-theme="dark"]{--red:#F0937F;--yellow:#F5D27E;--blue:#86A6E6}
+[data-palette="punch"],[data-palette="punch"] [data-theme="light"],[data-palette="punch"] [data-theme="dark"],[data-palette="punch"][data-theme="dark"]{--red:#B8D957;--yellow:#FF8C42;--blue:#7545A8}
+/* lime is light: text that normally sits in white on the accent turns dark */
+[data-palette="punch"] .cell.today .d,[data-palette="punch"] .tag.home{color:#151515}
+[data-palette="punch"] .chart text[fill="#fff"]{fill:#151515}
 [data-palette="mono"],[data-palette="mono"] [data-theme="light"]{--red:#3A3A3A;--yellow:#9A968D;--blue:#62605B}
 [data-palette="mono"] [data-theme="dark"],[data-palette="mono"][data-theme="dark"]{--red:#DAD6CE;--yellow:#A29F98;--blue:#BEBBB3}
-[data-palette="ocean"],[data-palette="ocean"] [data-theme="light"]{--red:#E06A4E;--yellow:#F2B33D;--blue:#1F7A8C}
-[data-palette="ocean"] [data-theme="dark"],[data-palette="ocean"][data-theme="dark"]{--red:#EB7D62;--yellow:#F5C25A;--blue:#3FA3B6}
 @media (max-width:1100px){
   .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:none;
     grid-template-areas:"head head" "loc now" "cal cal" "sun week" "legend legend";height:auto;min-height:100vh}
@@ -1423,13 +1423,14 @@ function switcherHTML(){
   </div>`;
 }
 /* ---------- Settings ---------- */
+S.set.palette = ({ pastel:'punch', ocean:'bauhaus' })[S.set.palette] || S.set.palette;   // renamed / removed palettes
 const STABS = {
   general:   { name:'General',   sh:'c', title:'General',   desc:'Units, time and how the calendar is laid out.' },
   customize: { name:'Customize', sh:'s', title:'Customize', desc:'Choose what the calendar, day view and sidebar show.' },
   themes:    { name:'Themes',    sh:'t', title:'Themes',    desc:'Appearance and colour palette.' },
 };
-const PALETTES = { bauhaus:['Bauhaus','Red, yellow, blue',['#F3B415','#DE3B26','#1F4FA8']], pastel:['Pastel','Soft primaries',['#F2C66B','#E8826F','#6F93D6']],
-  mono:['Monochrome','Greys only',['#9A968D','#3A3A3A','#62605B']], ocean:['Ocean','Coral, sun, teal',['#F2B33D','#E06A4E','#1F7A8C']] };
+const PALETTES = { bauhaus:['Bauhaus','Red, yellow, blue',['#F3B415','#DE3B26','#1F4FA8']], punch:['Fruit Punch','Orange, purple, lime',['#FF8C42','#B8D957','#7545A8']],
+  mono:['Monochrome','Greys only',['#9A968D','#3A3A3A','#62605B']] };
 const segCtl = (key, opts, cur) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-set="${key}" data-val="${v}" role="radio" aria-checked="${v === cur}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 const swCtl = (key, label) => `<button class="switch" role="switch" data-set="${key}" aria-checked="${!!S.set[key]}" aria-label="${label}"></button>`;
 const srow = (t, sub, ctl) => `<div class="srow"><div><b>${t}</b>${sub ? `<small>${sub}</small>` : ''}</div>${ctl}</div>`;
