@@ -81,7 +81,6 @@ aside{padding:28px;border-right:1px solid var(--line);display:flex;flex-directio
 .sunarc .mnote{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--muted)}
 .sunarc .mnote b{color:var(--ink);font-weight:500}
 .sunarc .mnote svg{width:14px;height:14px;flex-shrink:0}
-.sunarc .row b small{font-size:11px;font-weight:500;color:var(--muted);margin-left:3px;vertical-align:.35em}
 .week{display:flex;flex-direction:column}
 .week button{display:grid;grid-template-columns:44px 30px 1fr 60px;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);text-align:left;font-size:14px}
 .week button:hover .wd{color:var(--red)}
@@ -541,16 +540,13 @@ function icon(c, day = true, sev = 2){
   return `<svg viewBox="0 0 100 100" aria-hidden="true">${g}</svg>`;
 }
 
-/* ---------- Moon (phase, illumination, rise/set) ----------
+/* ---------- Moon (phase and illumination) ----------
    Low-precision lunar/solar position formulas (Meeus; same model as SunCalc), good to a few minutes. */
 const MOON = (() => {
   const rad = Math.PI/180, dayMs = 864e5, J1970 = 2440588, J2000 = 2451545, e = rad*23.4397;
   const toDays = ms => ms/dayMs - 0.5 + J1970 - J2000;
   const ra = (l,b) => Math.atan2(Math.sin(l)*Math.cos(e) - Math.tan(b)*Math.sin(e), Math.cos(l));
   const dec = (l,b) => Math.asin(Math.sin(b)*Math.cos(e) + Math.cos(b)*Math.sin(e)*Math.sin(l));
-  const sidereal = (d, lw) => rad*(280.16 + 360.9856235*d) - lw;
-  const altitude = (H, phi, de) => Math.asin(Math.sin(phi)*Math.sin(de) + Math.cos(phi)*Math.cos(de)*Math.cos(H));
-  const refraction = h => { h = Math.max(h, 0); return 0.0002967 / Math.tan(h + 0.00312536/(h + 0.08901179)); };
   function sun(d){
     const M = rad*(357.5291 + 0.98560028*d);
     // longitude of perihelion advances 1.71946°/century against the equinox of date (the moon terms are of date too)
@@ -567,16 +563,6 @@ const MOON = (() => {
     const dist = 385001 - 20905*c(Mm) - 3699*c(2*D - Mm) - 2956*c(2*D) - 570*c(2*Mm) + 246*c(2*Mm - 2*D) - 205*c(Ms - 2*D) - 171*c(Mm + 2*D) - 152*c(Mm + Ms - 2*D);
     return { ra: ra(l,b), dec: dec(l,b), dist, lon: l };
   }
-  // Apparent altitude (with refraction) of the moon's centre
-  function alt(ms, lat, lon){
-    const d = toDays(ms), c = moon(d), H = sidereal(d, rad*-lon) - c.ra, h = altitude(H, rad*lat, c.dec);
-    return h + refraction(h);
-  }
-  // Geocentric altitude minus the standard rise/set altitude h0 = 0.7275·parallax − 34′ (Meeus ch. 15)
-  function riseAlt(ms, lat, lon){
-    const d = toDays(ms), c = moon(d), H = sidereal(d, rad*-lon) - c.ra;
-    return altitude(H, rad*lat, c.dec) - (0.7275*Math.asin(6378.14/c.dist) - rad*34/60);
-  }
   // fraction lit 0..1 (from the sun–moon angle); phase 0..1 from the elongation in ecliptic longitude:
   // 0 = new, .25 = first quarter, .5 = full, .75 = last quarter
   function illumination(ms){
@@ -586,26 +572,6 @@ const MOON = (() => {
     const ang = Math.atan2(Math.cos(s.dec)*Math.sin(s.ra - m.ra), Math.sin(s.dec)*Math.cos(m.dec) - Math.cos(s.dec)*Math.sin(m.dec)*Math.cos(s.ra - m.ra));
     const phase = (((m.lon - s.lon) / (2*Math.PI)) % 1 + 1) % 1;
     return { fraction: (1 + Math.cos(inc))/2, phase };
-  }
-  // Rise/set events within 24h after startMs (scan in 2h steps, quadratic interpolation)
-  function times(startMs, lat, lon){
-    const at = h => riseAlt(startMs + h*3600e3, lat, lon);
-    let h0 = at(0), rise = null, set = null, ye = 0;
-    for (let i = 1; i <= 24; i += 2){
-      const h1 = at(i), h2 = at(i+1), a = (h0 + h2)/2 - h1, b = (h2 - h0)/2, xe = -b/(2*a);
-      ye = (a*xe + b)*xe + h1;
-      const disc = b*b - 4*a*h1; let roots = 0, x1 = 0, x2 = 0;
-      if (disc >= 0){ const dx = Math.sqrt(disc)/(Math.abs(a)*2); x1 = xe - dx; x2 = xe + dx; if (Math.abs(x1) <= 1) roots++; if (Math.abs(x2) <= 1) roots++; if (x1 < -1) x1 = x2; }
-      if (roots === 1){ if (h0 < 0) rise = i + x1; else set = i + x1; }
-      else if (roots === 2){ rise = i + (ye < 0 ? x2 : x1); set = i + (ye < 0 ? x1 : x2); }
-      if (rise != null && set != null) break;
-      h0 = h2;
-    }
-    const r = {};
-    if (rise != null) r.rise = startMs + rise*3600e3;
-    if (set != null) r.set = startMs + set*3600e3;
-    if (rise == null && set == null) r[ye > 0 ? 'alwaysUp' : 'alwaysDown'] = true;
-    return r;
   }
   function phaseName(p){
     const q = 0.5/29.53;   // within ±12 h of the exact quarter
@@ -626,7 +592,7 @@ const MOON = (() => {
     }
     return null;
   }
-  return { alt, illumination, times, phaseName, next };
+  return { illumination, phaseName, next };
 })();
 // Moon disc at its real phase: lit limb on the right while waxing (left in the southern hemisphere)
 function moonDisc(cx, cy, r, f, waxing, south){
@@ -637,43 +603,27 @@ function moonDisc(cx, cy, r, f, waxing, south){
   const top = `${cx} ${cy - r}`, bot = `${cx} ${cy + r}`;
   return s + `<path d="M${top} A${r} ${r} 0 0 ${right ? 1 : 0} ${bot} A${rx} ${r} 0 0 ${right === gib ? 1 : 0} ${top} Z" fill="var(--yellow)"/>`;
 }
-function moonBlock(now){
-  const off = S.data.utc_offset_seconds, lat = +S.loc.lat, lon = +S.loc.lon;
-  const nowMs = Date.parse(now + ':00Z') - off*1000, mid = Date.parse(now.slice(0,10) + 'T00:00:00Z') - off*1000;
-  const il = MOON.illumination(nowMs), name = MOON.phaseName(il.phase), waxing = il.phase < 0.5, south = lat < 0;
-  // rise/set events from yesterday to tomorrow, de-duplicated
-  const ev = [];
-  for (const dd of [-1, 0, 1]){ const t = MOON.times(mid + dd*864e5, lat, lon);
-    for (const type of ['rise','set']) if (t[type] != null && !ev.some(e => e.type === type && Math.abs(e.t - t[type]) < 30*60e3)) ev.push({ type, t: t[type] }); }
-  ev.sort((a,b) => a.t - b.t);
-  const last = [...ev].reverse().find(e => e.t <= nowMs);
-  const up = last ? last.type === 'rise' : MOON.alt(nowMs, lat, lon) > 0;
-  const rise = up ? last?.t : ev.find(e => e.type === 'rise' && e.t > nowMs)?.t;
-  const set = ev.find(e => e.type === 'set' && e.t > (up ? nowMs : (rise ?? nowMs)))?.t;
-  const local = ms => new Date(ms + off*1000).toISOString();
-  const when = ms => { if (ms == null) return { t:'—', d:'' }; const iso = local(ms), dd = Math.round((Date.parse(iso.slice(0,10)) - Date.parse(now.slice(0,10))) / 864e5);
-    return { t: iso.slice(11,16), d: dd ? `<small title="${dd > 0 ? 'tomorrow' : 'yesterday'}">${dd > 0 ? '+' : '−'}1</small>` : '' }; };
-  const r = when(rise), st = when(set);
+function moonBlock(now, today){
+  const off = S.data.utc_offset_seconds, nowMs = Date.parse(now + ':00Z') - off*1000;
+  const il = MOON.illumination(nowMs), name = MOON.phaseName(il.phase), waxing = il.phase < 0.5, south = +S.loc.lat < 0;
+  const lit = Math.round(il.fraction*100);
   // next full or new moon (skip the one we're in)
   const nf = MOON.next(nowMs, 0.5), nn = MOON.next(nowMs, 0);
   const nextIsFull = name === 'Full moon' ? false : name === 'New moon' ? true : nf < nn, nt = nextIsFull ? nf : nn;
-  const inDays = Math.round((Date.parse(local(nt).slice(0,10)) - Date.parse(now.slice(0,10))) / 864e5), nd = parseKey(local(nt).slice(0,10));
+  const ndKey = new Date(nt + off*1000).toISOString().slice(0,10), nd = parseKey(ndKey);
+  const inDays = Math.round((Date.parse(ndKey) - Date.parse(now.slice(0,10))) / 864e5);
   const ntxt = `${inDays === 0 ? 'today' : inDays === 1 ? 'tomorrow' : 'in ' + inDays + ' days'} · ${WD[nd.getUTCDay()].slice(0,3)} ${nd.getUTCDate()} ${MONTHS[nd.getUTCMonth()].slice(0,3)}`;
-  let art;
-  if (up && rise != null && set != null){
-    const p = Math.max(0, Math.min(1, (nowMs - rise) / (set - rise))), ang = Math.PI*(1 - p), cx = 140 + 120*Math.cos(ang), cy = 130 - 120*Math.sin(ang);
-    art = `<path d="M20 130 A120 120 0 0 1 ${cx.toFixed(1)} ${cy.toFixed(1)}" fill="none" stroke="var(--yellow)" stroke-width="3" opacity=".45"/>${moonDisc(+cx.toFixed(1), +cy.toFixed(1), 13, il.fraction, waxing, south)}`;
-  } else art = moonDisc(140, 82, 24, il.fraction, waxing, south);
+  // The arc belongs to the sun: at night it stays dashed, and the moon (at its real phase) sits above the horizon.
   return `<div class="sunarc moon">
       <div class="label" style="margin-bottom:10px">Moon · ${name}</div>
-      <svg viewBox="0 0 280 142" role="img" aria-label="${name}, ${Math.round(il.fraction*100)}% illuminated, ${up ? 'above' : 'below'} the horizon">
+      <svg viewBox="0 0 280 142" role="img" aria-label="${name}, ${lit}% illuminated">
         <line x1="0" y1="130" x2="280" y2="130" stroke="var(--line-strong)" stroke-width="1.5"/>
         <path d="M20 130 A120 120 0 0 1 260 130" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="3 6"/>
-        ${art}
+        ${moonDisc(140, 82, 24, il.fraction, waxing, south)}
         <rect x="14" y="124" width="12" height="12" fill="var(--red)"/>
         <path d="M254 136 L266 136 L260 124 Z" fill="var(--blue)"/>
       </svg>
-      <div class="row"><div><span>Moonrise</span><b>${r.t}${r.d}</b></div><div style="text-align:center"><span>Illuminated</span><b>${Math.round(il.fraction*100)}%</b></div><div style="text-align:right"><span>Moonset</span><b>${st.t}${st.d}</b></div></div>
+      <div class="row"><div><span>Sunrise</span><b>${hm(today.sunrise)}</b></div><div style="text-align:center"><span>Illuminated</span><b>${lit}%</b></div><div style="text-align:right"><span>Sunset</span><b>${hm(today.sunset)}</b></div></div>
       <div class="mnote"><svg width="14" height="14" viewBox="0 0 28 28">${moonDisc(14, 14, 12, nextIsFull ? 1 : 0, true, false)}</svg><span>${nextIsFull ? 'Full' : 'New'} moon <b>${ntxt}</b></span></div>
     </div>`;
 }
@@ -882,7 +832,7 @@ function renderSide(){
         <path d="M254 136 L266 136 L260 124 Z" fill="var(--blue)"/>
       </svg>
       <div class="row"><div><span>Sunrise</span><b>${hm(today.sunrise)}</b></div><div style="text-align:right"><span>Sunset</span><b>${hm(today.sunset)}</b></div></div>
-    </div>` : moonBlock(now)}
+    </div>` : moonBlock(now, today)}
     <div class="weekbox">
       <div class="label" style="margin-bottom:8px">Next 7 days</div>
       <div class="week">${ks.map((k,i)=>{ const d=S.days[k]; const l=(d.tmin-lo)/(hi-lo||1)*100, w=(d.tmax-d.tmin)/(hi-lo||1)*100;
