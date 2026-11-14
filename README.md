@@ -110,7 +110,7 @@ Click or tap any day to open it.
 Open **Settings** with the gear icon at the top right. Your choices are saved in this browser.
 - **General**: temperature (°C/°F), wind speed (km/h, mph, m/s), time format (24-hour or 12-hour), and whether the week starts on Monday or Sunday. **Reset** returns everything to the defaults (saved places are kept).
 - **Customize**: show or hide the one-month outlook, the penguin weather scenes, animations, and the sidebar's Sun & moon, Next 7 days and Legend sections.
-- **Themes**: Auto (follows sunrise and sunset), Light or Dark, a colour palette — Bauhaus, Fruit Punch (orange, purple, lime) or Monochrome — and the **font**: Jost (default), Outfit, Plus Jakarta Sans, Figtree, Urbanist, Newsreader or Lora. Fonts load from Google Fonts when chosen.
+- **Themes**: Auto (follows sunrise and sunset), Light or Dark, a colour palette — Bauhaus, Fruit Punch (orange, purple, lime) or Monochrome — and the **font**: Plus Jakarta Sans (default), Outfit, Figtree, Jost, Urbanist, Newsreader or Lora. Fonts load from Google Fonts when chosen.
 
 You can also switch **°C / °F** and the theme straight from the header.
 
