@@ -347,7 +347,10 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .save-btn.cta{background:var(--yellow);border-color:var(--yellow);color:#151515}
 .switcher{position:absolute;top:calc(100% + 12px);left:-12px;right:-12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);z-index:40;overflow:hidden}
 .sw-h{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px}
-.sw-item{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:12px;width:100%;padding:10px 16px;text-align:left}
+.sw-item{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:12px;width:100%;height:56px;padding:0 16px;text-align:left}
+.sw-list{max-height:280px;overflow-y:auto;overscroll-behavior:contain}   /* five 56px rows, then scroll */
+.sw-h{border-bottom:1px solid transparent;transition:border-color .2s}
+.switcher.scrolled .sw-h{border-bottom-color:var(--line)}
 .sw-item:hover{background:var(--line)}
 .sw-item .n{font-size:15px;font-weight:500;display:flex;align-items:center;gap:7px}
 .sw-item .n i{width:8px;height:8px;background:var(--red);display:inline-block}
@@ -581,7 +584,8 @@ const S = {
 
 const PLACES = { berlin:{name:'Berlin',region:'Germany',lat:52.52,lon:13.405}, tokyo:{name:'Tokyo',region:'Japan',lat:35.6895,lon:139.6917},
   ny:{name:'New York',region:'United States',lat:40.7143,lon:-74.006}, reykjavik:{name:'Reykjavík',region:'Iceland',lat:64.1355,lon:-21.8954},
-  capetown:{name:'Cape Town',region:'South Africa',lat:-33.9258,lon:18.4232} };
+  capetown:{name:'Cape Town',region:'South Africa',lat:-33.9258,lon:18.4232}, paris:{name:'Paris',region:'France',lat:48.8534,lon:2.3488},
+  sydney:{name:'Sydney',region:'Australia',lat:-33.8678,lon:151.2073}, dubai:{name:'Dubai',region:'United Arab Emirates',lat:25.0772,lon:55.3093} };
 S.saved = params.has('saved') ? params.get('saved').split(',').map(k => PLACES[k]).filter(Boolean) : (SNAP ? [] : (store.get('wc.saved') || []));
 
 /* ---------- Weather model ---------- */
@@ -930,6 +934,7 @@ function renderGrid(){
   $('#grid').innerHTML = html;
 }
 function renderSide(){
+  const swKeep = $('#side .sw-list')?.scrollTop;
   const cur = S.data.current, today = S.days[S.todayKey], c = cat(cur.weather_code);
   const now = localNowIso(), dayNow = (SNAP && params.get('at')) ? isDaylight() : !!cur.is_day;
   // Sun arc progress
@@ -972,6 +977,12 @@ function renderSide(){
       <div class="label" style="margin-bottom:12px">Legend</div>
       <div class="legend">${['clear','partly','cloudy','rain','snow','sleet','storm','fog'].map(c=>`<div><span style="width:24px;height:24px">${icon(c)}</span>${WORD[c]}</div>`).join('')}<div><span class="lg-outlook">≈</span>Outlook</div></div>
     </div>`;
+  const list = $('#side .sw-list');
+  if (list){
+    if (swKeep != null) list.scrollTop = swKeep;
+    else list.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });   // first open: show the current place
+    $('#side .switcher').classList.toggle('scrolled', list.scrollTop > 0);
+  }
 }
 
 /* ---------- Focus view ---------- */
@@ -1311,12 +1322,13 @@ function switcherHTML(){
       <span class="tp">${s ? T(s.temp) : ''}</span></button>`; }).join('');
   return `<div class="switcher" role="listbox">
     <div class="sw-h"><span class="label">Saved places</span></div>
-    ${rows || `<div class="sw-empty">No saved places yet. Save the cities you check often to switch between them here.</div>`}
+    ${rows ? `<div class="sw-list">${rows}</div>` : `<div class="sw-empty">No saved places yet. Save the cities you check often to switch between them here.</div>`}
     <div class="sw-f"><button data-add>+ Add place</button><button data-open-places>Manage</button></div>
   </div>`;
 }
 function openPlaces(){ S.switcher = false; renderSide(); renderPlaces(); $('#places').classList.add('open'); }
 function closePlaces(){ $('#places').classList.remove('open'); }
+$('#side').addEventListener('scroll', e => { if (e.target.classList?.contains('sw-list')) $('#side .switcher').classList.toggle('scrolled', e.target.scrollTop > 0); }, true);
 $('#psheet').addEventListener('scroll', e => { if (e.target.classList?.contains('pgrid')) $('#psheet').classList.toggle('scrolled', e.target.scrollTop > 0); }, true);
 function renderPlaces(){
   const cards = S.saved.map((l,i) => { const s = sumNow(l), cur = locId(l) === locId(S.loc);
