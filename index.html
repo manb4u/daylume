@@ -160,22 +160,22 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 /* Range: history + outlook */
 .icon-btn:disabled{opacity:.28;cursor:default;background:none}
 .cell.next{background-image:repeating-linear-gradient(135deg,transparent 0 9px,var(--line) 9px 10px)}
-/* Weather icon micro-motion: on hover in day cells, looping in the focused day view */
+/* Weather icon micro-motion: on hover in day cells, always looping for today and in the focused day view */
 :is(.ic, .hero .art) svg *{transform-box:fill-box;transform-origin:center}
 @media (prefers-reduced-motion:no-preference){
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-sun{animation:wx-pulse 1.8s ease-in-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-core{animation:wx-core 1.8s ease-in-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-ring{animation:wx-ring 1.8s ease-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-moon{animation:wx-rock 2.4s ease-in-out infinite;transform-origin:right center}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-twinkle{animation:wx-twinkle 1.4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.7s)}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-peek{animation:wx-peek 2s ease-in-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-drift-r{animation:wx-drift-r 2.4s ease-in-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-drift-l{animation:wx-drift-l 2.4s ease-in-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-bob{animation:wx-bob 1.6s ease-in-out infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-drop{animation:wx-drop .9s linear infinite;animation-delay:calc(var(--i,0) * -.3s)}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-flake{animation:wx-flake 1.8s linear infinite;animation-delay:calc(var(--i,0) * -.37s)}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-bolt{animation:wx-bolt 1.3s steps(1,end) infinite}
-  :is(.cell:is(:hover,:focus-visible) .ic, .hero .art) .a-fog{animation:wx-fog 2.2s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-sun{animation:wx-pulse 1.8s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-core{animation:wx-core 1.8s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-ring{animation:wx-ring 1.8s ease-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-moon{animation:wx-rock 2.4s ease-in-out infinite;transform-origin:right center}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-twinkle{animation:wx-twinkle 1.4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.7s)}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-peek{animation:wx-peek 2s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-drift-r{animation:wx-drift-r 2.4s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-drift-l{animation:wx-drift-l 2.4s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-bob{animation:wx-bob 1.6s ease-in-out infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-drop{animation:wx-drop .9s linear infinite;animation-delay:calc(var(--i,0) * -.3s)}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-flake{animation:wx-flake 1.8s linear infinite;animation-delay:calc(var(--i,0) * -.37s)}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-bolt{animation:wx-bolt 1.3s steps(1,end) infinite}
+  :is(.cell:is(:hover,:focus-visible) .ic, .cell.today .ic, .hero .art) .a-fog{animation:wx-fog 2.2s ease-in-out infinite}
 }
 @keyframes wx-pulse{50%{transform:scale(1.06)}}
 @keyframes wx-core{50%{transform:scale(1.45)}}
