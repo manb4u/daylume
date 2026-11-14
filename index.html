@@ -720,9 +720,9 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .ph{touch-action:none;padding-top:8px}
   .pgrid{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));grid-auto-rows:max-content}   /* rows fit their cards instead of squeezing to the sheet height */
   .ssheet{position:relative;height:88dvh}
-  .snav{padding:24px 64px 0 12px;touch-action:none;overflow:visible;gap:4px}
+  .snav{padding:24px 64px 0 16px;touch-action:none;overflow:visible;gap:16px;justify-content:flex-start}
   /* underline tabs: text only, sitting on the nav's bottom border; the selected tab gets a thick ink line */
-  .snav button{flex:1;justify-content:center;padding:0 6px;font-size:14px;min-width:0;height:46px;border-radius:0;margin-bottom:-1px;background:none;box-shadow:inset 0 -1px 0 transparent;transition:color .15s,box-shadow .15s}
+  .snav button{flex:none;justify-content:flex-start;padding:0;font-size:14px;min-width:0;height:46px;border-radius:0;margin-bottom:-1px;background:none;box-shadow:inset 0 -1px 0 transparent;transition:color .15s,box-shadow .15s}
   .snav button:hover{background:none;color:var(--ink)}
   .snav button[aria-selected="true"]{background:none;color:var(--ink);font-weight:600;box-shadow:inset 0 -3px 0 var(--ink)}
   .snav button:focus-visible{outline-offset:-3px}
