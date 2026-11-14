@@ -776,7 +776,6 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .search-open .results .nm{display:none}
   .sempty .sart{width:200px;height:140px;margin-bottom:12px;overflow:visible}
   .sempty b{font-size:20px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-  .sempty span{font-size:14px;line-height:1.5;max-width:30ch}
 
   /* Saved places as a bottom sheet */
   .switcher{position:fixed;left:0;right:0;top:auto;bottom:0;z-index:85;display:flex;flex-direction:column;max-height:80dvh;border:0;border-radius:24px 24px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -12px 40px rgba(0,0,0,.2)}
@@ -905,8 +904,7 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
           <g class="sa-a"><circle cx="92" cy="58" r="30" fill="var(--yellow)"/><circle cx="92" cy="58" r="30" fill="none" stroke="var(--ink)" stroke-width="5"/>
           <line x1="113" y1="79" x2="134" y2="100" stroke="var(--ink)" stroke-width="8" stroke-linecap="square"/></g>
         </svg>
-        <b>Where to next?</b>
-        <span>Search any city to see its weather for the past year and the month ahead. Save it to switch in one tap.</span>
+        <b>Search for a city</b>
       </div>
     </div>
     <div class="seg" id="unitSeg"><button data-u="C" class="on">°C</button><button data-u="F">°F</button></div>
@@ -1715,7 +1713,6 @@ async function locate(){
   }
 }
 let st, lastResults = [];
-const escHTML = t => String(t).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const toLoc = x => ({ lat:x.latitude, lon:x.longitude, name:x.name, region:x.country || '' });
 function renderResults(){
   const box = $('#results'), rs = lastResults;
@@ -1730,8 +1727,7 @@ function renderResults(){
           <path class="sa-a" d="M78 64 A22 22 0 0 1 122 64 Z" fill="var(--yellow)"/>
           <line x1="76" y1="40" x2="124" y2="88" stroke="var(--ink)" stroke-width="5"/>
         </svg>
-        <b>No city found</b>
-        <span>Nothing matches “${escHTML($('#searchInput').value.trim())}”. Check the spelling, or try a larger city nearby.</span>
+        <b>No results found</b>
       </div>`;
   box.hidden = false;
 }
