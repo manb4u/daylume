@@ -199,10 +199,13 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .penguin .pw-fa{animation:pg-step .75s ease-in-out infinite alternate}
   .penguin .pw-fb{animation:pg-step .75s ease-in-out -.75s infinite alternate}
   .penguin .pw-beam{animation:pg-flicker 2.6s linear infinite}
-  .penguin .pw-umb{transform-origin:27px 33px;animation:pg-sway 1.5s ease-in-out infinite alternate}
   .penguin .pb-breathe{transform-origin:31px 50.5px;animation:pg-breathe 3.4s ease-in-out infinite}
   .penguin .pb-feet{transform-origin:47px 50px;animation:pg-tap 1.8s ease-in-out infinite}
   .penguin .pb-glint{animation:pg-glint 4.5s ease-in-out infinite}
+  .boat{animation:pg-run 30s linear infinite}
+  .penguin .bt-bob{transform-origin:36px 52px;animation:pg-rock 2.6s ease-in-out infinite}
+  .penguin .bt-umb{transform-origin:34px 36px;animation:pg-sway 1.8s ease-in-out infinite alternate}
+  .penguin .bt-wake{animation:pg-wake 1.2s ease-out infinite}
   .car{animation:pg-drive 15s linear infinite}
   .penguin .cr-body{animation:pg-bounce .45s ease-in-out infinite alternate}
   .penguin .cr-wheel{animation:pg-spin .6s linear infinite}
@@ -229,6 +232,8 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 @keyframes pg-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.06)}}
 @keyframes pg-tap{0%,60%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(8deg)}}
 @keyframes pg-glint{0%,70%,100%{opacity:0}78%{opacity:.95}86%{opacity:0}}
+@keyframes pg-rock{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(1px)}}
+@keyframes pg-wake{0%{opacity:.9;transform:translateX(0)}100%{opacity:0;transform:translateX(8px)}}
 @keyframes pg-drive{from{left:-90px}to{left:calc(100% + 10px)}}
 @keyframes pg-bounce{from{transform:translateY(0)}to{transform:translateY(-1px)}}
 @keyframes pg-spin{to{transform:rotate(360deg)}}
@@ -248,6 +253,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .penguin{position:absolute;bottom:-1px;left:64%;width:60px;height:52.5px;overflow:visible}
 .penguin.car{width:75px;left:28%}
 .penguin.beach{left:54%}
+.penguin.boat{width:66px;height:55px;bottom:-7px}   /* waterline (y=52) sits on the band's edge */
 .penguin *{transform-box:view-box}
 .penguin .pg-torso{transform-origin:32px 51px;transform:rotate(-4deg)}
 .penguin .pg-arm{transform-origin:33px 27px;transform:rotate(70.7deg)}
@@ -1042,10 +1048,27 @@ const PG_SKIER = `<svg class="penguin skier" viewBox="0 0 64 56">
 const PG_TORCH = walker(pwBody({ front:
   `<path class="pw-beam" d="M11 36 L-50 20 L-50 54 Z" fill="var(--yellow)" opacity=".34"/><rect x="12.5" y="33.5" width="9.5" height="5" rx="1" fill="#3B3D44"/><rect x="11" y="33" width="2.4" height="6" fill="var(--yellow)"/>`
   + `<ellipse cx="26" cy="36" rx="3.4" ry="8" transform="rotate(70 26 36)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>` }));
-const PG_UMBRELLA = walker(pwBody({ front:
-  `<g class="pw-umb"><line x1="27" y1="-18" x2="27" y2="-14" stroke="var(--hero-ink)" stroke-width="1.6"/><path d="M8 4 A19 19 0 0 1 46 4 Z" fill="var(--red)"/><path d="M27 -15 L19 4 M27 -15 L35 4" stroke="rgba(0,0,0,.18)" stroke-width="1"/>`
-  + `<line x1="27" y1="4" x2="27" y2="33" stroke="var(--hero-ink)" stroke-width="1.6"/><path d="M27 33 q0 4 -3.6 4" fill="none" stroke="var(--hero-ink)" stroke-width="1.6"/></g>`
-  + `<ellipse cx="30" cy="30" rx="3.4" ry="7.5" transform="rotate(-25 30 30)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>` }));
+// Rain: sitting in a little boat under an umbrella, drifting right to left on the water
+const PG_BOAT = `<svg class="penguin boat" viewBox="0 0 72 60">
+    <path class="bt-wake" d="M66 52 q6 -2.2 12 0 M70 55.5 q5 -1.6 10 0" fill="none" stroke="var(--water-glint)" stroke-width="1.4" stroke-linecap="round"/>
+    <g class="bt-bob">
+      <g class="bt-umb">
+        <line x1="34" y1="-18" x2="34" y2="-14" stroke="var(--hero-ink)" stroke-width="1.6"/>
+        <path d="M15 4 A19 19 0 0 1 53 4 Z" fill="var(--red)"/><path d="M34 -15 L26 4 M34 -15 L42 4" stroke="rgba(0,0,0,.18)" stroke-width="1"/>
+        <line x1="34" y1="4" x2="34" y2="36" stroke="var(--hero-ink)" stroke-width="1.6"/>
+      </g>
+      <circle cx="38" cy="36" r="11" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+      <path d="M35 26 A8 10 0 0 0 35 46 Z" fill="#FFFFFF"/>
+      <circle cx="32" cy="19" r="7.5" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+      <circle cx="29" cy="17.2" r="2.2" fill="#FFFFFF"/><circle cx="28.4" cy="17.2" r="1" fill="#151515"/>
+      <path d="M24.8 19.2 L18 21.2 L24.8 23.2 Z" fill="var(--yellow)"/>
+      <ellipse cx="37" cy="31" rx="3.2" ry="7" transform="rotate(-25 37 31)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+      <path d="M6 45 A30 15 0 0 0 66 45 Z" fill="var(--yellow)"/>
+      <rect x="4.5" y="42.6" width="63" height="3.2" rx="1.6" fill="var(--hero-ink)"/>
+      <path d="M9.4 52 H62.6 A30 15 0 0 1 36 60 A30 15 0 0 1 9.4 52 Z" fill="var(--water-top)" opacity=".6"/>
+    </g>
+    <path class="bt-wake" style="animation-delay:-.6s" d="M4 52 q-4 -1.6 -8 0" fill="none" stroke="var(--water-glint)" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>`;
 const PG_JACKET = walker(pwBody({ body: 'var(--red)', belly: false,
   neck: `<rect x="18.5" y="23.4" width="13" height="4.2" rx="2.1" fill="var(--yellow)"/>`,
   head: `<path d="M17 13.4 A8 8 0 0 1 33 13.4 Z" fill="var(--blue)"/><rect x="16.6" y="12" width="16.8" height="2.6" rx="1.3" fill="var(--blue)"/><circle cx="25" cy="4.8" r="2.5" fill="var(--yellow)"/>`,
@@ -1105,7 +1128,7 @@ function scene(day){
     torch: { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_TORCH, aria: 'Overcast road' },
     fog:   { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_CAR, aria: 'Foggy road',
              fx: `<div class="fx fx-fog" aria-hidden="true"><i style="top:34%;--d:34s"></i><i style="top:56%;--d:24s"></i><i style="top:74%;--d:42s"></i></div>` },
-    rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_UMBRELLA, aria: `${fmm} mm of rain`, rip: true,
+    rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_BOAT, aria: `Rain, ${fmm} mm`, rip: true,
              fx: `<div class="fx fx-rain" aria-hidden="true">${drops(30)}</div>` },
     storm: { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Storm'), actor: PG_STORM, aria: `Thunderstorm, ${fmm} mm of rain`, rip: true,
              fx: `<div class="fx fx-rain" aria-hidden="true">${drops(42)}</div><div class="fx fx-flash" aria-hidden="true"></div>` },

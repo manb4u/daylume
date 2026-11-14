@@ -78,7 +78,7 @@ Click or tap any day to open it.
 - The bottom of the left panel shows a small looping **penguin scene** for the day's weather:
   - **Sunny / partly cloudy**: sunbathing in sunglasses on a towel under a beach umbrella, on sand (shows the UV index)
   - **Cloudy**: walking right to left with a flickering torch, on a road (wind)
-  - **Rainy**: walking under an umbrella while rain falls across the panel, on water with ripples (rain in mm)
+  - **Rainy**: sitting in a little yellow boat under an umbrella, rocking gently and drifting right to left on the water while rain falls and ripples spread (rain in mm)
   - **Snow**: skiing with goggles, scarf and poles over frosted ice (snowfall in cm; the ice deepens with more snow)
   - **Sleet**: walking in a quilted winter jacket and beanie over frosted ice
   - **Storm**: walking through heavy rain until lightning strikes — a flash, an x-ray flicker — and walking off as a skeleton, on water
