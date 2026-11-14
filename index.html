@@ -750,7 +750,7 @@ function moonBlock(now, today){
   // The arc belongs to the sun: at night it stays dashed, and the moon (at its real phase) sits above the horizon.
   return `<div class="sunarc moon">
       <div class="label" style="margin-bottom:10px">Moon · ${name}</div>
-      <svg viewBox="0 0 280 142" role="img" aria-label="${name}, ${lit}% illuminated">
+      <svg viewBox="0 -6 280 148" role="img" aria-label="${name}, ${lit}% illuminated">
         <line x1="0" y1="130" x2="280" y2="130" stroke="var(--line-strong)" stroke-width="1.5"/>
         <path d="M20 130 A120 120 0 0 1 260 130" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="3 6"/>
         ${moonDisc(140, 82, 24, il.fraction, waxing, south)}
@@ -958,7 +958,7 @@ function renderSide(){
     ${up ? `
     <div class="sunarc">
       <div class="label" style="margin-bottom:10px">Sun</div>
-      <svg viewBox="0 0 280 142">
+      <svg viewBox="0 -6 280 148">
         <line x1="0" y1="130" x2="280" y2="130" stroke="var(--line-strong)" stroke-width="1.5"/>
         <path d="M20 130 A120 120 0 0 1 260 130" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="3 6"/>
         <path d="M20 130 A120 120 0 0 1 ${cx.toFixed(1)} ${cy.toFixed(1)}" fill="none" stroke="var(--yellow)" stroke-width="4"/>
