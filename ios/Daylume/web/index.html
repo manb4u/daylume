@@ -731,12 +731,9 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .grid.strip{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;grid-template-rows:none;grid-auto-rows:minmax(84px,auto);padding-bottom:calc(92px + env(safe-area-inset-bottom,0px));scrollbar-width:none}
   .grid.strip::-webkit-scrollbar{display:none}
   .grid.strip .cell.pad{pointer-events:none;background:none}
-  /* month edges drawn as a step line; days outside the month in the title are quieter */
-  .grid.strip .cell.mt{box-shadow:inset 0 1.5px 0 color-mix(in srgb,var(--ink) 45%,transparent)}
-  .grid.strip .cell.ml{box-shadow:inset 0 1.5px 0 color-mix(in srgb,var(--ink) 45%,transparent),inset 1.5px 0 0 color-mix(in srgb,var(--ink) 45%,transparent)}
+  /* days outside the month in the title are quieter */
   .grid.strip .cell.m1::after{content:attr(data-mon);position:absolute;top:8px;right:6px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
   .grid.strip .cell>*{opacity:.4;transition:opacity .25s}
-  .grid.strip .cell.sel{box-shadow:inset 0 0 0 2px var(--ink)}
 
   /* Search as a bottom sheet */
   .search-open .search{position:fixed;left:0;right:0;top:max(6dvh,40px);bottom:0;z-index:85;display:flex;flex-direction:column;gap:12px;padding:64px 16px calc(16px + env(safe-area-inset-bottom,0px));background:var(--surface);border-radius:24px 24px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.2)}
@@ -1294,7 +1291,7 @@ function renderStrip(){
   while (i % 7 || k <= last){
     const d = parseKey(k), mo = moKey(d.getUTCFullYear(), d.getUTCMonth()), dd = d.getUTCDate();
     if (mo < start || mo > end) html += `<div class="cell pad" aria-hidden="true"></div>`;
-    else html += cellHTML(k, false, false, [dd <= 7 && 'mt', dd === 1 && i % 7 && 'ml', dd === 1 && 'm1'].filter(Boolean).join(' '),
+    else html += cellHTML(k, false, false, dd === 1 ? 'm1' : '',
       ` data-mo="${mo}"${dd === 1 ? ` data-mon="${MON3[d.getUTCMonth()]}"` : ''}`);
     k = nextKey(k); i++;
   }
