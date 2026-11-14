@@ -33,6 +33,15 @@ Double-clicking `index.html` works for browsing weather, but most browsers block
 
 ---
 
+## Mac app
+
+daylume also runs as a native macOS app (macOS 13 or later, Apple Silicon and Intel).
+
+- **Install:** open `daylume.dmg` and drag **daylume** into **Applications**.
+- **Build it yourself:** run `macos/build.sh`. It needs Xcode and Google Chrome (used to render the icon) and writes `dist/daylume.dmg`.
+- The app wraps the same `index.html` in a native window. Saved places and settings are kept between launches, links open in your browser, and **View** has Reload and zoom.
+- Inside the app your current location may not be detected automatically; search for your city once and press **Save**.
+
 ## Allow location access
 
 The first time you open daylume, your browser asks: **“Allow daylume to use your location?”**
