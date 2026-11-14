@@ -58,8 +58,12 @@ header{grid-column:1/-1;display:flex;align-items:center;gap:20px;padding:0 28px;
 .month-title span{color:var(--muted);font-weight:300}
 .spacer{flex:1}
 .search{position:relative}
-.search input{height:38px;width:240px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding:0 16px 0 38px;font-size:14px;outline:none;transition:border-color .2s}
+.search input{height:38px;width:240px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding:0 38px 0 38px;font-size:14px;outline:none;transition:border-color .2s}
 .search input:focus{border-color:var(--ink)}
+.search-clear{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:background .15s,color .15s}
+.search-clear:hover{background:var(--line);color:var(--ink)}
+.search-clear svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.2;fill:none}
+.search-clear[hidden]{display:none}
 .search>svg{position:absolute;left:14px;top:11px;width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2}
 .results{position:absolute;top:44px;left:0;width:360px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;z-index:30;box-shadow:var(--shadow)}
 .results button{display:block;width:100%;text-align:left;padding:10px 16px;font-size:14px}
@@ -422,6 +426,8 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .mode-chip{height:44px}
   .search input{height:44px;width:220px;font-size:16px}
   .search>svg{top:14px}
+  .search-clear{width:36px;height:36px;right:4px}
+  .search input{padding-right:44px}
   /* The sidebar's sections join the page grid */
   aside{display:contents}
   .locbox{grid-area:loc;padding:20px 24px;z-index:20}
@@ -550,6 +556,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
     <div class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
       <input id="searchInput" placeholder="Search a city" autocomplete="off">
+      <button class="search-clear" id="searchClear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="results" id="results" hidden></div>
     </div>
     <div class="seg" id="unitSeg"><button data-u="C" class="on">°C</button><button data-u="F">°F</button></div>
@@ -1249,6 +1256,11 @@ async function doSearch(q){
     lastResults = (await r.json()).results || []; renderResults();
   } catch(err){ $('#results').hidden = true; }
 }
+const syncClear = () => { $('#searchClear').hidden = !$('#searchInput').value; };
+function clearSearch(){ clearTimeout(st); $('#searchInput').value = ''; lastResults = []; $('#results').hidden = true; syncClear(); $('#searchInput').focus(); }
+$('#searchClear').addEventListener('click', clearSearch);
+$('#searchInput').addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.value){ e.stopPropagation(); clearSearch(); } });
+$('#searchInput').addEventListener('input', syncClear);
 $('#searchInput').addEventListener('input', e => {
   clearTimeout(st); const q = e.target.value.trim();
   if (q.length < 2){ $('#results').hidden = true; return; }
@@ -1258,7 +1270,7 @@ $('#results').addEventListener('click', ev => {
   const sv = ev.target.closest('[data-sv]');
   if (sv){ const l = toLoc(lastResults[+sv.dataset.sv]); isSaved(l) ? unsaveLoc(l) : saveLoc(l); renderResults(); return; }
   const b = ev.target.closest('button[data-i]'); if(!b) return;
-  $('#results').hidden = true; $('#searchInput').value = '';
+  $('#results').hidden = true; $('#searchInput').value = ''; syncClear();
   switchTo(toLoc(lastResults[+b.dataset.i]));
 });
 
@@ -1390,7 +1402,7 @@ locate().then(async () => {
   if (!SNAP) return;
   const ui = params.get('ui');
   if (ui === 'switcher') { S.switcher = true; renderSide(); }
-  if (ui === 'search') { $('#searchInput').value = params.get('q'); $('#searchInput').setAttribute('value', params.get('q')); $('#searchInput').focus(); await doSearch(params.get('q')); }
+  if (ui === 'search') { $('#searchInput').value = params.get('q'); $('#searchInput').setAttribute('value', params.get('q')); syncClear(); $('#searchInput').focus(); await doSearch(params.get('q')); }
   if (ui === 'saved') saveLoc(S.loc);
   if (ui === 'places') openPlaces();
   // Snapshot export: lift popovers to the top layer so static design imports keep their stacking.
