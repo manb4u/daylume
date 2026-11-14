@@ -239,13 +239,14 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 10px 10px 18px;border-radius:999px;font-size:14px;z-index:90;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);white-space:nowrap}
 .toast .sq{width:10px;height:10px;background:var(--yellow);flex-shrink:0}
 .toast button{color:var(--bg);font-weight:500;height:30px;padding:0 14px;border-radius:999px;border:1px solid rgba(127,127,127,.5)}
-.psheet{width:min(1180px,100%);max-height:calc(100vh - 64px);overflow:auto;background:var(--surface);border-radius:28px;box-shadow:var(--shadow);padding:32px;transform:translateY(12px) scale(.985);transition:transform .3s}
+.psheet{width:min(1180px,100%);max-height:calc(100vh - 64px);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);border-radius:28px;box-shadow:var(--shadow);padding:32px;transform:translateY(12px) scale(.985);transition:transform .3s}
 .focus.open .psheet{transform:none}
-.ph{display:flex;align-items:flex-start;gap:16px;margin-bottom:26px}
+.ph{display:flex;align-items:flex-start;gap:16px;flex-shrink:0;margin:0 -32px;padding:0 32px 22px;background:var(--surface);border-bottom:1px solid transparent;transition:border-color .2s}
+.psheet.scrolled .ph{border-bottom-color:var(--line)}
 .ph>div{flex:1}
 .ph h2{font-size:44px;font-weight:500;letter-spacing:-.02em;line-height:1;margin-top:8px}
 .ph p{color:var(--muted);font-size:15px;margin-top:10px}
-.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-content:start;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:0 -4px -4px;padding:22px 4px 4px}
 .pcard{position:relative;background:var(--bg);color:var(--ink);border-radius:22px;padding:20px 20px 16px;min-height:236px;display:flex;flex-direction:column;text-align:left;cursor:pointer;transition:transform .2s;border:1px solid var(--line)}
 .pcard:hover{transform:translateY(-2px)}
 .pcard.cur{box-shadow:inset 0 0 0 2px var(--red)}
@@ -381,12 +382,12 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .stat .v{font-size:26px}
   /* Saved locations: full screen */
   .psheet{width:100%;border-radius:0;height:100vh;height:100dvh;max-height:none;padding:16px 16px 32px}
-  .ph{flex-wrap:wrap;gap:12px 8px;margin-bottom:20px}
+  .ph{flex-wrap:wrap;gap:12px 8px;margin:0 -16px;padding:0 16px 16px}
   .ph>div{order:1;flex-basis:100%}
   .ph .btn{margin-right:auto}
   .ph h2{font-size:34px}
   .ph p{font-size:14px}
-  .pgrid{grid-template-columns:1fr;gap:12px}
+  .pgrid{grid-template-columns:1fr;gap:12px;padding-top:16px}
   .pcard{min-height:196px}
   .pcard .tp{font-size:56px}
   .pcard .ic{width:64px;height:64px}
@@ -1053,6 +1054,7 @@ function switcherHTML(){
 }
 function openPlaces(){ S.switcher = false; renderSide(); renderPlaces(); $('#places').classList.add('open'); }
 function closePlaces(){ $('#places').classList.remove('open'); }
+$('#psheet').addEventListener('scroll', e => { if (e.target.classList?.contains('pgrid')) $('#psheet').classList.toggle('scrolled', e.target.scrollTop > 0); }, true);
 function renderPlaces(){
   const cards = S.saved.map((l,i) => { const s = sumNow(l), cur = locId(l) === locId(S.loc);
     return `<div class="pcard ${cur ? 'cur' : ''}" ${s ? `data-theme="${s.day ? 'light' : 'dark'}"` : ''} data-loc="${i}" role="button" tabindex="0" aria-label="Show ${l.name}">
@@ -1061,6 +1063,7 @@ function renderPlaces(){
       <div class="tags">${i === 0 ? '<span class="tag home">Home</span>' : ''}${cur ? '<span class="tag now">Viewing</span>' : ''}<span class="tag">${s ? `${s.time} · ${s.day ? 'Day' : 'Night'}` : '…'}</span>
         <span class="pact">${i ? `<button data-home="${i}" title="Make home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</button>` : ''}<button data-rm="${i}" title="Remove ${l.name}"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></div>
     </div>`; }).join('');
+  $('#psheet').classList.remove('scrolled');
   $('#psheet').innerHTML = `<div class="ph"><div><div class="label">Your places · ${S.saved.length}</div><h2>Saved locations</h2><p>Each card follows its own sunrise and sunset: light by day, dark by night.</p></div>
       <button class="btn" data-add>+ Add place</button><button class="icon-btn close" data-close-places aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="pgrid">${cards}<button class="pcard padd" data-add><span class="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Add a place</button></div>`;
