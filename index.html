@@ -163,7 +163,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 
 
 /* Day view: snowfall line, frosted ice and a walking penguin */
-.hero.has-snow{padding-bottom:calc(var(--band) + 60px)}   /* leaves a clear lane above the line for the penguin */
+.hero.has-snow{padding-bottom:calc(var(--band) + 72px)}   /* leaves a clear lane above the line for the penguin */
 .iceband{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:center;padding:0 32px;border-top:2px solid var(--blue);
   background:repeating-linear-gradient(60deg,transparent 0 14px,var(--ice-line) 14px 15px),repeating-linear-gradient(-60deg,transparent 0 22px,var(--ice-line) 22px 23px),linear-gradient(180deg,var(--ice-top),var(--ice-bottom));
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -172,20 +172,35 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .ice-val b{font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1}
 .ice-val small{font-size:14px;opacity:.7}
 .ice-val span{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.6;margin-left:10px}
-.pg-track{position:absolute;left:0;right:0;bottom:100%;height:44px;margin-bottom:2px;pointer-events:none}
-.penguin{position:absolute;bottom:-2px;left:68%;width:34px;height:41px;overflow:visible}
-.penguin .pg-body{transform-origin:20px 46px}
+.pg-track{position:absolute;left:0;right:0;bottom:100%;height:56px;margin-bottom:2px;pointer-events:none}
+.penguin{position:absolute;bottom:-1px;left:64%;width:60px;height:52.5px;overflow:visible}
+.penguin *{transform-box:view-box}
+.penguin .pg-torso{transform-origin:32px 51px;transform:rotate(-4deg)}
+.penguin .pg-arm{transform-origin:33px 27px;transform:rotate(70.7deg)}
+.penguin .pg-pole{transform-origin:0 0;transform:translate(23.42px,30.35px) rotate(-19.5deg)}
+.penguin .pg-scarf-tail{transform-origin:34px 26px}
+.penguin .pg-spray circle{opacity:0}
 @media (prefers-reduced-motion:no-preference){
-  .penguin{animation:pg-walk 28s linear infinite}
-  .penguin .pg-body{animation:pg-waddle .75s ease-in-out infinite alternate}
-  .penguin .pg-fa{animation:pg-step .75s ease-in-out infinite alternate}
-  .penguin .pg-fb{animation:pg-step .75s ease-in-out -.75s infinite alternate}
-  .penguin .pg-wing{animation:pg-wing .75s ease-in-out infinite alternate;transform-origin:27px 21px}
+  .penguin{animation:pg-run 18s linear infinite}
+  .penguin .pg-glide{animation:pg-surge 1.3s ease-in-out infinite}
+  .penguin .pg-torso{animation:pg-crouch 1.3s ease-in-out infinite}
+  .penguin .pg-arm{animation:pg-arm 1.3s ease-in-out infinite}
+  .penguin .pg-pole{animation:pg-pole 1.3s ease-in-out infinite}
+  .penguin .pg-scarf-tail{animation:pg-flutter .32s ease-in-out infinite alternate}
+  .penguin .pg-spray circle{animation:pg-spray .65s linear infinite}
+  .penguin .pg-spray circle:nth-child(2){animation-delay:-.22s}
+  .penguin .pg-spray circle:nth-child(3){animation-delay:-.44s}
 }
-@keyframes pg-walk{from{left:calc(100% + 10px)}to{left:-50px}}
-@keyframes pg-waddle{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
-@keyframes pg-step{from{transform:translateY(0)}to{transform:translateY(-2.5px)}}
-@keyframes pg-wing{from{transform:rotate(4deg)}to{transform:rotate(-10deg)}}
+/* skiing right to left; each double-pole push gives a small surge of speed */
+@keyframes pg-run{from{left:calc(100% + 10px)}to{left:-70px}}
+@keyframes pg-surge{0%,100%{transform:translateX(0)}50%{transform:translateX(-3px)}}
+/* double poling: plant forward (upright) → crouch and push back → recover */
+@keyframes pg-crouch{0%{transform:translateY(0.0px) rotate(-4deg)}25%{transform:translateY(1.5px) rotate(-10deg)}45%{transform:translateY(2.6px) rotate(-14deg)}55%{transform:translateY(2.2px) rotate(-12deg)}80%{transform:translateY(0.0px) rotate(-3deg)}100%{transform:translateY(0.0px) rotate(-4deg)}}
+/* two joints: the flipper turns at the shoulder, the pole turns at the hand so its tip stays planted during the push */
+@keyframes pg-arm{0%{transform:rotate(70.7deg)}25%{transform:rotate(28.7deg)}45%{transform:rotate(-21.6deg)}55%{transform:rotate(-28.2deg)}80%{transform:rotate(71.7deg)}100%{transform:rotate(70.7deg)}}
+@keyframes pg-pole{0%{transform:translate(23.42px,30.35px) rotate(-19.5deg)}25%{transform:translate(28.78px,34.69px) rotate(-39.6deg)}45%{transform:translate(37.96px,39.50px) rotate(-46.5deg)}55%{transform:translate(38.86px,37.94px) rotate(-60.3deg)}80%{transform:translate(25.11px,29.61px) rotate(27.4deg)}100%{transform:translate(23.42px,30.35px) rotate(-19.5deg)}}
+@keyframes pg-flutter{from{transform:rotate(-7deg)}to{transform:rotate(9deg) scaleX(1.08)}}
+@keyframes pg-spray{0%{transform:translate(0,0);opacity:.55}100%{transform:translate(9px,-5px);opacity:0}}
 /* Range: history + outlook */
 .icon-btn:disabled{opacity:.28;cursor:default;background:none}
 .cell.next{background-image:repeating-linear-gradient(135deg,transparent 0 9px,var(--line) 9px 10px)}
@@ -926,15 +941,24 @@ function spreadChart(day){
 function iceBand(cm, h){
   const v = cm < 10 ? cm.toFixed(1) : Math.round(cm);
   return `<div class="iceband" style="height:${h}px" role="img" aria-label="${v} cm of snowfall">
-      <div class="pg-track" aria-hidden="true"><svg class="penguin" viewBox="0 0 40 48">
-        <ellipse class="pg-fa" cx="15" cy="46" rx="5" ry="2" fill="#F08A24"/>
-        <ellipse class="pg-fb" cx="24" cy="46" rx="5" ry="2" fill="#F08A24"/>
-        <g class="pg-body">
-          <ellipse cx="20" cy="26" rx="13" ry="19" fill="var(--pg-body)" stroke="var(--pg-edge)" stroke-width="1"/>
-          <ellipse cx="16.5" cy="30" rx="8.5" ry="13" fill="#FFFFFF"/>
-          <ellipse class="pg-wing" cx="28" cy="29" rx="3.6" ry="9" fill="var(--pg-body)" stroke="var(--pg-edge)" stroke-width="1"/>
-          <circle cx="14" cy="15" r="2.6" fill="#FFFFFF"/><circle cx="13.2" cy="15" r="1.25" fill="#151515"/>
-          <path d="M8.5 17 L1.5 19.2 L8.5 21.4 Z" fill="var(--yellow)"/>
+      <div class="pg-track" aria-hidden="true"><svg class="penguin" viewBox="0 0 64 56">
+        <g class="pg-glide">
+          <g class="pg-spray" fill="var(--blue)"><circle cx="58" cy="51" r="1.2"/><circle cx="60" cy="50" r="1"/><circle cx="57" cy="49.5" r=".9"/></g>
+          <path d="M9 51.6 H61 V54 H8 C4.6 54 2.6 51.8 3.2 48.6 C4.6 50.8 6.4 51.6 9 51.6 Z" fill="var(--red)"/>
+          <rect x="27" y="47.4" width="11" height="4.4" fill="var(--blue)"/>
+          <g class="pg-torso">
+            <path class="pg-scarf-tail" d="M34 25.4 L47 23.2 L45.6 27.4 L34 28.6 Z" fill="var(--red)"/>
+            <circle cx="34" cy="35" r="12.5" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+            <path d="M30.5 25.6 A9.4 9.4 0 0 0 30.5 44.4 Z" fill="#FFFFFF"/>
+            <circle cx="25.5" cy="17.5" r="7.6" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+            <rect x="18.8" y="23.4" width="15.2" height="4.2" fill="var(--red)"/>
+            <path d="M18.2 17.6 L11 19.7 L18.2 21.8 Z" fill="var(--yellow)"/>
+            <rect x="19" y="12.6" width="14" height="2.6" fill="var(--blue)"/>
+            <circle cx="21.8" cy="14" r="3.6" fill="var(--yellow)" stroke="#151515" stroke-width="1.2"/>
+            <circle cx="20.6" cy="12.9" r="1" fill="#FFFFFF"/>
+            <g class="pg-pole"><line x1="0" y1="0" x2="0" y2="25.5" stroke="var(--hero-ink)" stroke-width="1.6" opacity=".75"/><circle cx="0" cy="22.4" r="1.7" fill="none" stroke="var(--hero-ink)" stroke-width="1.2" opacity=".75"/></g>
+            <ellipse class="pg-arm" cx="33" cy="33.6" rx="3.4" ry="7.4" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+          </g>
         </g>
       </svg></div>
       <div class="ice-val" aria-hidden="true"><b>${v}</b><small>cm</small><span>Snowfall</span></div>
