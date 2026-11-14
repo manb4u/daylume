@@ -77,7 +77,7 @@ Click or tap any day to open it.
 - The large weather symbol is **animated on a loop** — the same motion you see when hovering a day, but always on.
 - The bottom of the left panel shows a small looping **penguin scene** for the day's weather:
   - **Sunny / partly cloudy**: sunbathing in sunglasses on a towel under a beach umbrella, on sand (shows the UV index)
-  - **Cloudy**: fast asleep in bed under a red blanket, nightcap on, with Zzz drifting up, on a wooden floor (wind)
+  - **Cloudy**: fast asleep in bed under a red blanket, with Zzz drifting up, on a wooden floor (wind)
   - **Rainy**: sitting in a little yellow boat under an umbrella, rocking gently and drifting right to left on the water while rain falls and ripples spread (rain in mm)
   - **Snow**: skiing with goggles, scarf and poles over frosted ice (snowfall in cm; the ice deepens with more snow)
   - **Sleet**: walking in a quilted winter jacket and beanie over frosted ice
