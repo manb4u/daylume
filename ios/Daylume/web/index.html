@@ -14,7 +14,7 @@
   --red:#DE3B26; --yellow:#F3B415; --blue:#1F4FA8; --grey:#BDB7AA; --cloud-dark:#59584F; --snow:#FFFFFF;
   --t-clear:#FAEBBE; --t-partly:#E4E9F0; --t-cloudy:#E8E4DB; --t-fog:#ECE9E2; --t-rain:#DBE3F1; --t-snow:#F1F4F8; --t-storm:#F5DAD3; --t-none:transparent; --t-heavy:#DCE6F3; --t-sleet:#E1E6EE; --snowcap:#FFFFFF; --moon-dark:rgba(21,21,21,.07);
   --ice-top:rgba(255,255,255,.9); --ice-bottom:rgba(212,226,244,.92); --ice-line:rgba(31,79,168,.07); --ice-glint:rgba(255,255,255,.8); --pg-body:#151515; --pg-edge:transparent;
-  --sand-top:#F4E2B6; --sand-bottom:#E7C98A; --sand-dot:rgba(150,108,40,.28); --sand-edge:#D9B263; --road-top:#55545A; --road-bottom:#3E3D42; --road-dash:#F1E6C4; --road-edge:#8D8B84;
+  --sand-top:#F4E2B6; --sand-bottom:#E7C98A; --sand-dot:rgba(150,108,40,.28); --sand-edge:#D9B263; --road-top:#55545A; --road-bottom:#3E3D42; --road-edge:#8D8B84;
   --floor-top:#DDBF92; --floor-bottom:#C69C68; --floor-seam:rgba(96,62,28,.28); --floor-edge:#A97E4C;
   --water-top:#6F98DA; --water-bottom:#2F5DB0; --water-glint:rgba(255,255,255,.55); --rain:rgba(31,79,168,.45); --fog:rgba(255,255,255,.72);
   --hero-ink:#151515; --shadow:0 30px 80px rgba(20,18,12,.18);
@@ -27,7 +27,7 @@
   --red:#E8553F; --yellow:#F2C232; --blue:#5584E0; --grey:#6A6C74; --cloud-dark:#3B3D44; --snow:#E9EEF6;
   --t-clear:#2E2814; --t-partly:#1C2130; --t-cloudy:#1F2024; --t-fog:#1D1E21; --t-rain:#141D33; --t-snow:#1B2029; --t-storm:#321915; --t-heavy:#1E2A3F; --t-sleet:#192030; --snowcap:#2B3647; --moon-dark:rgba(239,235,226,.08);
   --ice-top:rgba(196,216,244,.18); --ice-bottom:rgba(120,152,204,.12); --ice-line:rgba(233,238,246,.07); --ice-glint:rgba(255,255,255,.14); --pg-body:#15171c; --pg-edge:rgba(239,235,226,.35);
-  --sand-top:#5A4C30; --sand-bottom:#43381F; --sand-dot:rgba(255,230,170,.12); --sand-edge:#8C7440; --road-top:#2C2D33; --road-bottom:#1F2025; --road-dash:#BFB79E; --road-edge:#4A4B52;
+  --sand-top:#5A4C30; --sand-bottom:#43381F; --sand-dot:rgba(255,230,170,.12); --sand-edge:#8C7440; --road-top:#2C2D33; --road-bottom:#1F2025; --road-edge:#4A4B52;
   --floor-top:#4C3D2B; --floor-bottom:#3A2E20; --floor-seam:rgba(0,0,0,.38); --floor-edge:#6E5636;
   --water-top:#24427A; --water-bottom:#162A52; --water-glint:rgba(200,220,255,.35); --rain:rgba(160,190,255,.45); --fog:rgba(190,198,212,.16);
   --hero-ink:#EFEBE2; --shadow:0 30px 80px rgba(0,0,0,.55);
@@ -185,7 +185,6 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .band.ice::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:linear-gradient(180deg,var(--ice-glint),transparent);pointer-events:none}
 .band.sand{border-top-color:var(--sand-edge);background:radial-gradient(circle,var(--sand-dot) 0 1px,transparent 1.5px) 0 0/9px 9px,radial-gradient(circle,var(--sand-dot) 0 .8px,transparent 1.3px) 4px 5px/13px 11px,linear-gradient(180deg,var(--sand-top),var(--sand-bottom))}
 .band.road{border-top-color:var(--road-edge);background:linear-gradient(180deg,var(--road-top),var(--road-bottom))}
-.band.road::before{content:"";position:absolute;left:0;right:0;top:15px;height:3px;background:repeating-linear-gradient(90deg,var(--road-dash) 0 26px,transparent 26px 52px)}
 .band.floor{border-top-color:var(--floor-edge);background:linear-gradient(var(--floor-seam),var(--floor-seam)) 0 50%/100% 1px no-repeat,repeating-linear-gradient(90deg,transparent 0 79px,var(--floor-seam) 79px 80px) 0 0/100% 50% no-repeat,repeating-linear-gradient(90deg,transparent 0 79px,var(--floor-seam) 79px 80px) 40px 100%/100% 50% no-repeat,linear-gradient(180deg,var(--floor-top),var(--floor-bottom))}
 .band.water{background:linear-gradient(180deg,var(--water-top),var(--water-bottom))}
 .band.water::before,.band.water::after{content:"";position:absolute;left:0;right:0;height:2px;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 18px,var(--water-glint) 18px 34px,transparent 34px 60px)}
@@ -764,7 +763,6 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .hero.has-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--band);background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--surface) 35%,transparent) 40%,color-mix(in srgb,var(--surface) 80%,transparent) 72%,var(--surface) 100%);z-index:1;pointer-events:none}
   .hero.has-scene .band{z-index:auto}   /* no stacking context, so the reading below can sit above the fade */
   .hero .band .ice-val{z-index:2}
-  .band.road::before{display:none}   /* no lane dashes on the road */
   .hero+.detail .chart,.hero~.chart{margin-top:4px}
 
   /* Saved locations: compact list cards */
