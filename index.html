@@ -361,7 +361,9 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .sw-f button{flex:1;padding:12px;font-size:13px;font-weight:500}
 .sw-f button+button{border-left:1px solid var(--line)}
 .sw-f button:hover{background:var(--line)}
-.results .r{display:flex;align-items:center}
+.results .r{display:flex;align-items:center;transition:background .15s}
+.results .r:hover{background:var(--line)}   /* the whole row fills: place name and Save button together */
+.results .r>button:hover:not(.on){background:transparent}
 .results .r>button:first-child{flex:1}
 .results .r small{display:block;margin-top:1px}
 .results .sv{width:auto!important;margin-right:10px;height:30px;padding:0 12px!important;border-radius:999px;border:1px solid var(--line-strong);font-size:12px!important;font-weight:500;display:flex!important;align-items:center;gap:6px;flex-shrink:0}
