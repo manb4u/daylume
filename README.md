@@ -2,7 +2,7 @@
 
 A Bauhaus-inspired weather calendar for the web. Every day in the month view shows its weather — sunny, cloudy, rain, snow — built from simple circles, squares and triangles. Tap a day for a focused view. The interface turns light at sunrise and dark at sunset, following the real sun at the location you're viewing.
 
-- **One year of history** (recorded weather), a **16-day forecast** with hourly detail, and a **1-month outlook**
+- **One year of history** (recorded weather), a **16-day forecast** with hourly detail, and an **outlook up to 30 days ahead**; the calendar itself runs 100 years into the future
 - **Saved places** to switch between cities in one tap
 - No account, no API key, no build step: it's a single `index.html`
 
@@ -63,14 +63,14 @@ To make daylume ask again from scratch, clear the site's data (see [Reset daylum
 - Snow days get an icy tint and a white band at the bottom that grows with the amount of snow.
 - Days from the next month that spill into the grid get a diagonal hatch pattern; it disappears once you move to that month.
 - Hover a day to see its weather symbol move: the sun pulses, clouds drift, rain and snow fall, lightning flickers. **Today's** symbol is always animated.
-- **Today** has a red circle. Use **‹ ›** to move between months and **Today** to jump back.
+- **Today** has a red circle. Use **‹ ›** to move between months — back one year, ahead up to 100 years — and **Today** to jump back. Days more than 30 days ahead show **Available soon**.
 
 ### What the days mean
 | Days | Source | Shown as |
 |---|---|---|
 | Up to 1 year ago | Recorded weather archive | Actual highs, lows, rain and snow |
 | Last few days → 16 days ahead | Live forecast | Hourly detail, chance of rain, UV |
-| 16 days → 1 month ahead | Outlook from 31 model runs | **≈** before the temperature |
+| 16 → 30 days ahead | Outlook from 31 model runs | **≈** before the temperature |
 
 ### Focused day view
 Click or tap any day to open it.
@@ -140,7 +140,7 @@ Clearing the site's data removes your saved places and settings and makes daylum
 | It shows Berlin, not where I am | Location was blocked or unavailable. Allow it (see above), or search for your city and press **Save**. |
 | The location prompt never appears | You're opening the file directly, or location was blocked earlier. Use GitHub Pages or `localhost`, then check the site's permission. |
 | “Past-year history” or “1-month outlook is unavailable” | One of the weather services didn't respond. The forecast still works; reload in a few minutes. |
-| Days show “Beyond outlook” or “Before history” | Weather is available from 1 year ago up to 1 month ahead. |
+| Days show “Available soon” or “Before history” | Weather is available from 1 year ago up to 30 days ahead. Later days fill in as they come within range; you can browse months up to 100 years ahead. |
 | Nothing loads | daylume needs an internet connection. Check you're online and reload. |
 
 ---

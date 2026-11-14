@@ -945,7 +945,7 @@ function index(fc, arch, ens){
   const today = fc.current.time.slice(0,10);
   const days = { ...(arch ? indexSource(arch, 'hist') : {}) };
   Object.assign(days, indexSource(fc, 'fc'));
-  if (ens){ const last = Object.keys(days).sort().at(-1); Object.assign(days, indexEnsemble(ens, nextKey(last), isoDay(parseKey(today), 31))); }
+  if (ens){ const last = Object.keys(days).sort().at(-1); Object.assign(days, indexEnsemble(ens, nextKey(last), isoDay(parseKey(today), 30))); }   // weather for the next 30 days
   if (params.get('demo') === 'winter') winterDemo(days, today);
   for (const k in days) days[k].frost = days[k].tmin != null && days[k].tmin <= 0;
   const ks = Object.keys(days).sort(); S.minKey = ks[0]; S.maxKey = ks.at(-1);
@@ -1005,7 +1005,8 @@ function render(){
   const {y,m} = S.view;
   $('#monthTitle').innerHTML = `${MONTHS[m]} <span>${y}</span>`;
   $('#prevBtn').disabled = !S.minKey || keyOf(y,m,1) <= S.minKey;
-  $('#nextBtn').disabled = !S.maxKey || keyOf(y,m+1,1) > S.maxKey;
+  const tk = S.todayKey ? parseKey(S.todayKey) : null;   // calendar reaches 100 years ahead; weather only where data exists
+  $('#nextBtn').disabled = !tk || (y*12 + m) >= (tk.getUTCFullYear() + 100)*12 + tk.getUTCMonth();
   const dows = ['MON','TUE','WED','THU','FRI','SAT','SUN']; if (S.set.week === 'sun') dows.unshift(dows.pop());
   $('#dow').innerHTML = dows.map(d => `<div>${d}</div>`).join('');
   document.querySelectorAll('#unitSeg button').forEach(b => b.classList.toggle('on', b.dataset.u === S.unit));
@@ -1036,7 +1037,8 @@ function renderGrid(){
         </span>
       </button>`;
     } else {
-      html += `<div class="${cls}" aria-label="${label}, no forecast yet"><span class="d">${dt.getUTCDate()}</span><span class="hatch"></span><span class="wx"><span class="c">${k > S.todayKey ? 'Beyond outlook' : 'Before history'}</span></span></div>`;
+      const none = k > S.todayKey ? 'Available soon' : 'Before history';
+      html += `<div class="${cls}" aria-label="${label}, ${none.toLowerCase()}"><span class="d">${dt.getUTCDate()}</span><span class="hatch"></span><span class="wx"><span class="c">${none}</span></span></div>`;
     }
   }
   $('#grid').innerHTML = html;
@@ -1284,7 +1286,7 @@ function renderFocus(){
       <button class="icon-btn" data-go="${prevKey(k)}" aria-label="Previous day" ${S.days[prevKey(k)]?'':'disabled style="opacity:.3"'}><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="icon-btn" data-go="${nextKey(k)}" aria-label="Next day" ${S.days[nextKey(k)]?'':'disabled style="opacity:.3"'}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
       <button class="icon-btn close" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;
-  if (!day){ $('#sheet').innerHTML = `<div class="detail" style="grid-column:1/-1">${head}<div class="nodata-msg">${k > S.todayKey ? `No outlook for ${dateStr} yet. The outlook reaches one month ahead.` : `No record for ${dateStr}. History goes back one year.`}</div></div>`; return; }
+  if (!day){ $('#sheet').innerHTML = `<div class="detail" style="grid-column:1/-1">${head}<div class="nodata-msg">${k > S.todayKey ? `Available soon. Weather for ${dateStr} appears once it is within 30 days.` : `No record for ${dateStr}. History goes back one year.`}</div></div>`; return; }
   const dlH = Math.floor(day.daylight/3600), dlM = Math.round(day.daylight%3600/60);
   const uv = day.uv ?? 0, uvW = uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : 'Very high';
   const wind = Math.round(day.wind ?? 0), hist = day.src === 'hist', outlook = day.src === 'outlook';
@@ -1486,7 +1488,7 @@ function settingsBody(tab){
       ${srow('Reset settings', 'Back to the default units, layout and theme. Saved places are kept.', '<button class="btn" data-reset>Reset</button>')}</div>`;
   if (tab === 'customize') return `
     <div class="sgroup"><div class="label">Calendar</div>
-      ${srow('One-month outlook', 'Show days 16–31 ahead from the model ensemble (marked ≈).', swCtl('outlook', 'One-month outlook'))}</div>
+      ${srow('One-month outlook', 'Show days 16–30 ahead from the model ensemble (marked ≈).', swCtl('outlook', 'One-month outlook'))}</div>
     <div class="sgroup"><div class="label">Day view</div>
       ${srow('Weather scenes', 'The penguin scene at the bottom of each day.', swCtl('scenes', 'Weather scenes'))}
       ${srow('Animations', 'Icon and scene motion. Always off when your device is set to reduce motion.', swCtl('motion', 'Animations'))}</div>
@@ -1529,8 +1531,7 @@ function setOption(key, val){
   else if (key === 'theme'){ S.themePref = val; store.set('wc.theme', val); applyTheme(); }
   else { S.set[key] = val; saveSettings(); }
   if (key === 'outlook' && S.data){ S.days = index(S.data, S.raw.arch, val ? S.raw.ens : null);
-    if (S.selected && !S.days[S.selected]) closeFocus();
-    if (keyOf(S.view.y, S.view.m, 1) > S.maxKey){ const t = parseKey(S.todayKey); S.view = { y:t.getUTCFullYear(), m:t.getUTCMonth() }; } }
+    if (S.selected && !S.days[S.selected]) closeFocus(); }
   applySettings(); if (S.data) render(); renderSettings();
   if ($('#places').classList.contains('open')) renderPlaces();
 }
