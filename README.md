@@ -75,7 +75,15 @@ To make daylume ask again from scratch, clear the site's data (see [Reset daylum
 ### Focused day view
 Click or tap any day to open it.
 - The large weather symbol is **animated on a loop** — the same motion you see when hovering a day, but always on.
-- On **snowy days** the bottom of the left panel shows the snowfall: a snow line with frosted ice beneath it and the amount in cm (the ice gets deeper with more snow), and a small Bauhaus penguin — goggles, scarf, skis and poles — skiing along the line from right to left with a classic double-pole stride.
+- The bottom of the left panel shows a small looping **penguin scene** for the day's weather:
+  - **Sunny / partly cloudy**: sunbathing in sunglasses on a towel under a beach umbrella, on sand (shows the UV index)
+  - **Cloudy**: walking right to left with a flickering torch, on a road (wind)
+  - **Rainy**: walking under an umbrella while rain falls across the panel, on water with ripples (rain in mm)
+  - **Snow**: skiing with goggles, scarf and poles over frosted ice (snowfall in cm; the ice deepens with more snow)
+  - **Sleet**: walking in a quilted winter jacket and beanie over frosted ice
+  - **Storm**: walking through heavy rain until lightning strikes — a flash, an x-ray flicker — and walking off as a skeleton, on water
+  - **Fog**: driving a little yellow car left to right along a road while fog banks drift past (wind)
+  All scenes loop continuously and hold still if your device is set to reduce motion.
 - **Hourly chart**: temperature line, rain bars and the daylight hours. Today shows a red **NOW** marker.
 - **Tiles**: sunrise and sunset, daylight length, precipitation or snowfall, wind, UV (or *Wet hours* for past days) and the temperature range.
 - **Outlook days** show a *Model spread* chart instead: each dot is one model run, the bar is the average, and a **Confidence** tile tells you how much the runs agree.

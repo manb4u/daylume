@@ -14,6 +14,8 @@
   --red:#DE3B26; --yellow:#F3B415; --blue:#1F4FA8; --grey:#BDB7AA; --cloud-dark:#59584F; --snow:#FFFFFF;
   --t-clear:#FAEBBE; --t-partly:#E4E9F0; --t-cloudy:#E8E4DB; --t-fog:#ECE9E2; --t-rain:#DBE3F1; --t-snow:#F1F4F8; --t-storm:#F5DAD3; --t-none:transparent; --t-heavy:#DCE6F3; --t-sleet:#E1E6EE; --snowcap:#FFFFFF; --moon-dark:rgba(21,21,21,.07);
   --ice-top:rgba(255,255,255,.9); --ice-bottom:rgba(212,226,244,.92); --ice-line:rgba(31,79,168,.07); --ice-glint:rgba(255,255,255,.8); --pg-body:#151515; --pg-edge:transparent;
+  --sand-top:#F4E2B6; --sand-bottom:#E7C98A; --sand-dot:rgba(150,108,40,.28); --sand-edge:#D9B263; --road-top:#55545A; --road-bottom:#3E3D42; --road-dash:#F1E6C4; --road-edge:#8D8B84;
+  --water-top:#6F98DA; --water-bottom:#2F5DB0; --water-glint:rgba(255,255,255,.55); --rain:rgba(31,79,168,.45); --fog:rgba(255,255,255,.72);
   --hero-ink:#151515; --shadow:0 30px 80px rgba(20,18,12,.18);
   --scrim:rgba(242,238,229,.72);
 }
@@ -23,6 +25,8 @@
   --red:#E8553F; --yellow:#F2C232; --blue:#5584E0; --grey:#6A6C74; --cloud-dark:#3B3D44; --snow:#E9EEF6;
   --t-clear:#2E2814; --t-partly:#1C2130; --t-cloudy:#1F2024; --t-fog:#1D1E21; --t-rain:#141D33; --t-snow:#1B2029; --t-storm:#321915; --t-heavy:#1E2A3F; --t-sleet:#192030; --snowcap:#2B3647; --moon-dark:rgba(239,235,226,.08);
   --ice-top:rgba(196,216,244,.18); --ice-bottom:rgba(120,152,204,.12); --ice-line:rgba(233,238,246,.07); --ice-glint:rgba(255,255,255,.14); --pg-body:#15171c; --pg-edge:rgba(239,235,226,.35);
+  --sand-top:#5A4C30; --sand-bottom:#43381F; --sand-dot:rgba(255,230,170,.12); --sand-edge:#8C7440; --road-top:#2C2D33; --road-bottom:#1F2025; --road-dash:#BFB79E; --road-edge:#4A4B52;
+  --water-top:#24427A; --water-bottom:#162A52; --water-glint:rgba(200,220,255,.35); --rain:rgba(160,190,255,.45); --fog:rgba(190,198,212,.16);
   --hero-ink:#EFEBE2; --shadow:0 30px 80px rgba(0,0,0,.55);
   --scrim:rgba(10,11,13,.72);
 }
@@ -162,18 +166,88 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .err{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;z-index:90}
 
 
-/* Day view: snowfall line, frosted ice and a walking penguin */
-.hero.has-snow{padding-bottom:calc(var(--band) + 72px)}   /* leaves a clear lane above the line for the penguin */
-.iceband{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:center;padding:0 32px;border-top:2px solid var(--blue);
-  background:repeating-linear-gradient(60deg,transparent 0 14px,var(--ice-line) 14px 15px),repeating-linear-gradient(-60deg,transparent 0 22px,var(--ice-line) 22px 23px),linear-gradient(180deg,var(--ice-top),var(--ice-bottom));
+/* Day view scenes: a ground band at the bottom of the hero with a small Bauhaus penguin scene per weather type */
+.hero.has-scene{padding-bottom:calc(var(--band) + 72px)}   /* leaves a clear lane above the line for the penguin */
+.hero.has-scene>:not(.band):not(.fx){position:relative;z-index:1}
+.band{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:center;padding:0 32px;border-top:2px solid var(--blue)}
+.band.ice{background:repeating-linear-gradient(60deg,transparent 0 14px,var(--ice-line) 14px 15px),repeating-linear-gradient(-60deg,transparent 0 22px,var(--ice-line) 22px 23px),linear-gradient(180deg,var(--ice-top),var(--ice-bottom));
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.iceband::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:linear-gradient(180deg,var(--ice-glint),transparent);pointer-events:none}
+.band.ice::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:linear-gradient(180deg,var(--ice-glint),transparent);pointer-events:none}
+.band.sand{border-top-color:var(--sand-edge);background:radial-gradient(circle,var(--sand-dot) 0 1px,transparent 1.5px) 0 0/9px 9px,radial-gradient(circle,var(--sand-dot) 0 .8px,transparent 1.3px) 4px 5px/13px 11px,linear-gradient(180deg,var(--sand-top),var(--sand-bottom))}
+.band.road{border-top-color:var(--road-edge);background:linear-gradient(180deg,var(--road-top),var(--road-bottom))}
+.band.road::before{content:"";position:absolute;left:0;right:0;top:15px;height:3px;background:repeating-linear-gradient(90deg,var(--road-dash) 0 26px,transparent 26px 52px)}
+.band.water{background:linear-gradient(180deg,var(--water-top),var(--water-bottom))}
+.band.water::before,.band.water::after{content:"";position:absolute;left:0;right:0;height:2px;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 18px,var(--water-glint) 18px 34px,transparent 34px 60px)}
+.band.water::before{top:10px}
+.band.water::after{top:24px;opacity:.6;background:repeating-linear-gradient(90deg,transparent 0 30px,var(--water-glint) 30px 44px,transparent 44px 84px)}
+.band .ripple{position:absolute;top:-4px;width:26px;height:8px;margin-left:-13px;border:1.5px solid var(--water-glint);border-radius:50%;opacity:0}
 .ice-val{position:relative;display:flex;align-items:baseline;gap:5px;color:var(--hero-ink)}
+.band.road .ice-val,.band.water .ice-val{color:#F7F4EC}
 .ice-val b{font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1}
 .ice-val small{font-size:14px;opacity:.7}
 .ice-val span{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.6;margin-left:10px}
+.fx{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.fx-rain{transform:skewX(-10deg);transform-origin:top}
+.fx-rain i{position:absolute;top:0;width:1.5px;height:100%;background:linear-gradient(180deg,var(--rain) 0 16px,transparent 16px);opacity:0}
+.fx-fog i{position:absolute;left:-50%;width:200%;height:110px;margin-top:-55px;background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--fog),transparent 70%) 0 0/50% 100% repeat-x;filter:blur(3px)}
+.fx-flash{background:#FFFFFF;opacity:0}
+.penguin .pw-skel,.penguin .pw-bolt,.penguin .pw-sparks,.penguin .cr-puff{opacity:0}
+@media (prefers-reduced-motion:no-preference){
+  .walker{animation:pg-run 26s linear infinite}
+  .walker.storm{animation:pg-run-storm 16s linear infinite}
+  .penguin .pw-body{transform-origin:31px 54px;animation:pg-waddle .75s ease-in-out infinite alternate}
+  .penguin .pw-fa{animation:pg-step .75s ease-in-out infinite alternate}
+  .penguin .pw-fb{animation:pg-step .75s ease-in-out -.75s infinite alternate}
+  .penguin .pw-beam{animation:pg-flicker 2.6s linear infinite}
+  .penguin .pw-umb{transform-origin:27px 33px;animation:pg-sway 1.5s ease-in-out infinite alternate}
+  .penguin .pb-breathe{transform-origin:31px 50.5px;animation:pg-breathe 3.4s ease-in-out infinite}
+  .penguin .pb-feet{transform-origin:47px 50px;animation:pg-tap 1.8s ease-in-out infinite}
+  .penguin .pb-glint{animation:pg-glint 4.5s ease-in-out infinite}
+  .car{animation:pg-drive 15s linear infinite}
+  .penguin .cr-body{animation:pg-bounce .45s ease-in-out infinite alternate}
+  .penguin .cr-wheel{animation:pg-spin .6s linear infinite}
+  .penguin .cr-puff{animation:pg-puff 1.4s ease-out infinite}
+  .penguin .pw-norm{animation:pg-norm 16s linear infinite}
+  .penguin .pw-skel{animation:pg-skel 16s linear infinite}
+  .penguin .pw-bolt{animation:pg-bolt 16s linear infinite}
+  .penguin .pw-shock{animation:pg-shock 16s linear infinite}
+  .penguin .pw-sparks{animation:pg-sparks 16s linear infinite}
+  .fx-flash{animation:pg-flash 16s linear infinite}
+  .fx-rain i{animation:pg-rain var(--d,.9s) linear var(--dl,0s) infinite}
+  .fx-fog i{animation:pg-fog var(--d,24s) linear infinite}
+  .band .ripple{animation:pg-ripple 1.8s ease-out var(--dl,0s) infinite}
+  .band.water::before{animation:pg-glide 6s linear infinite}
+  .band.water::after{animation:pg-glide2 9s linear infinite reverse}
+}
+@keyframes pg-run{from{left:calc(100% + 10px)}to{left:-70px}}
+/* storm: walks in, stops when the bolt strikes, flickers between penguin and skeleton, walks off as a skeleton */
+@keyframes pg-run-storm{0%{left:calc(100% + 10px)}44%{left:44%}54%{left:44%}100%{left:-70px}}
+@keyframes pg-waddle{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+@keyframes pg-step{from{transform:translateY(0)}to{transform:translateY(-2.5px)}}
+@keyframes pg-flicker{0%,58%,100%{opacity:.34}60%{opacity:.16}62%{opacity:.34}64%{opacity:.1}66%{opacity:.34}}
+@keyframes pg-sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes pg-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.06)}}
+@keyframes pg-tap{0%,60%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(8deg)}}
+@keyframes pg-glint{0%,70%,100%{opacity:0}78%{opacity:.95}86%{opacity:0}}
+@keyframes pg-drive{from{left:-90px}to{left:calc(100% + 10px)}}
+@keyframes pg-bounce{from{transform:translateY(0)}to{transform:translateY(-1px)}}
+@keyframes pg-spin{to{transform:rotate(360deg)}}
+@keyframes pg-puff{0%{transform:translate(0,0) scale(.6);opacity:.55}100%{transform:translate(-14px,-6px) scale(1.7);opacity:0}}
+@keyframes pg-norm{0%,45%{opacity:1}45.8%{opacity:0}46.6%{opacity:1}47.4%{opacity:0}48.2%{opacity:1}49%,99.4%{opacity:0}100%{opacity:1}}
+@keyframes pg-skel{0%,45%{opacity:0}45.8%{opacity:1}46.6%{opacity:0}47.4%{opacity:1}48.2%{opacity:0}49%,99.4%{opacity:1}100%{opacity:0}}
+@keyframes pg-bolt{0%,44.6%,100%{opacity:0}45%{opacity:1}45.6%{opacity:.2}46.2%{opacity:1}47.2%{opacity:0}}
+@keyframes pg-flash{0%,44.6%,100%{opacity:0}45%{opacity:.6}45.6%{opacity:0}46.2%{opacity:.45}47.2%{opacity:0}}
+@keyframes pg-shock{0%,45%,53%,100%{transform:translate(0,0)}46%{transform:translate(-1.2px,.6px)}47%{transform:translate(1.4px,-.8px)}48%{transform:translate(-1px,-.4px)}49%{transform:translate(1.2px,.8px)}50%{transform:translate(-.8px,.4px)}51%{transform:translate(1px,-.6px)}52%{transform:translate(-.6px,.3px)}}
+@keyframes pg-sparks{0%,45%,51%,100%{opacity:0}46%{opacity:1}47%{opacity:.2}48%{opacity:1}49%{opacity:.3}50%{opacity:1}}
+@keyframes pg-rain{0%{transform:translateY(-20px);opacity:.75}100%{transform:translateY(100%);opacity:.75}}
+@keyframes pg-fog{from{transform:translateX(0)}to{transform:translateX(-25%)}}
+@keyframes pg-ripple{0%{transform:scale(.3);opacity:.85}100%{transform:scale(1.6);opacity:0}}
+@keyframes pg-glide{to{background-position-x:60px}}
+@keyframes pg-glide2{to{background-position-x:84px}}
 .pg-track{position:absolute;left:0;right:0;bottom:100%;height:56px;margin-bottom:2px;pointer-events:none}
 .penguin{position:absolute;bottom:-1px;left:64%;width:60px;height:52.5px;overflow:visible}
+.penguin.car{width:75px;left:28%}
+.penguin.beach{left:54%}
 .penguin *{transform-box:view-box}
 .penguin .pg-torso{transform-origin:32px 51px;transform:rotate(-4deg)}
 .penguin .pg-arm{transform-origin:33px 27px;transform:rotate(70.7deg)}
@@ -181,7 +255,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .penguin .pg-scarf-tail{transform-origin:34px 26px}
 .penguin .pg-spray circle{opacity:0}
 @media (prefers-reduced-motion:no-preference){
-  .penguin{animation:pg-run 18s linear infinite}
+  .penguin.skier{animation:pg-run 18s linear infinite}
   .penguin .pg-glide{animation:pg-surge 1.3s ease-in-out infinite}
   .penguin .pg-torso{animation:pg-crouch 1.3s ease-in-out infinite}
   .penguin .pg-arm{animation:pg-arm 1.3s ease-in-out infinite}
@@ -192,7 +266,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .penguin .pg-spray circle:nth-child(3){animation-delay:-.44s}
 }
 /* skiing right to left; each double-pole push gives a small surge of speed */
-@keyframes pg-run{from{left:calc(100% + 10px)}to{left:-70px}}
+
 @keyframes pg-surge{0%,100%{transform:translateX(0)}50%{transform:translateX(-3px)}}
 /* double poling: plant forward (upright) → crouch and push back → recover */
 @keyframes pg-crouch{0%{transform:translateY(0.0px) rotate(-4deg)}25%{transform:translateY(1.5px) rotate(-10deg)}45%{transform:translateY(2.6px) rotate(-14deg)}55%{transform:translateY(2.2px) rotate(-12deg)}80%{transform:translateY(0.0px) rotate(-3deg)}100%{transform:translateY(0.0px) rotate(-4deg)}}
@@ -412,7 +486,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .hero .desc{font-size:15px}
   .hero .temps{margin-top:14px}
   .hero .temps b{font-size:44px}
-  .iceband{padding:0 16px}
+  .band{padding:0 16px}
   .chart{margin:16px 16px 0;padding:14px 12px 8px}
   .chart .top{flex-wrap:wrap;gap:6px 12px;margin-bottom:10px}
   .chart .top .k{flex-wrap:wrap;gap:4px 12px}
@@ -937,11 +1011,15 @@ function spreadChart(day){
   s += `<line x1="70" y1="${H-26}" x2="${W-30}" y2="${H-26}" stroke="var(--line)"/></svg>`;
   return s;
 }
-// Snowfall line with frosted ice below and a small penguin walking right to left along it
-function iceBand(cm, h){
-  const v = cm < 10 ? cm.toFixed(1) : Math.round(cm);
-  return `<div class="iceband" style="height:${h}px" role="img" aria-label="${v} cm of snowfall">
-      <div class="pg-track" aria-hidden="true"><svg class="penguin" viewBox="0 0 64 56">
+/* ---------- Day view scenes (bottom of the hero) ---------- */
+const FEET = `<ellipse class="pw-fa" cx="26" cy="53.5" rx="5" ry="2" fill="#F08A24"/><ellipse class="pw-fb" cx="36" cy="53.5" rx="5" ry="2" fill="#F08A24"/>`;
+// Standing Bauhaus penguin facing left: circle body, half-disc belly, circle head, triangle beak
+const pwBody = ({ body = 'var(--pg-body)', belly = true, neck = '', head = '', front = '' } = {}) =>
+  `<circle cx="31" cy="38" r="14" fill="${body}" stroke="var(--pg-edge)"/>${belly ? `<path d="M27.5 27 A10.5 11 0 0 0 27.5 49 Z" fill="#FFFFFF"/>` : ''}${neck}`
+  + `<circle cx="25" cy="18" r="8" fill="var(--pg-body)" stroke="var(--pg-edge)"/><circle cx="22" cy="16" r="2.4" fill="#FFFFFF"/><circle cx="21.3" cy="16" r="1.1" fill="#151515"/>`
+  + `<path d="M17.4 18 L10 20.2 L17.4 22.4 Z" fill="var(--yellow)"/>${head}${front}`;
+const walker = (inner, cls = '') => `<svg class="penguin walker ${cls}" viewBox="0 0 64 56">${FEET}<g class="pw-body">${inner}</g></svg>`;
+const PG_SKIER = `<svg class="penguin skier" viewBox="0 0 64 56">
         <g class="pg-glide">
           <g class="pg-spray" fill="var(--blue)"><circle cx="58" cy="51" r="1.2"/><circle cx="60" cy="50" r="1"/><circle cx="57" cy="49.5" r=".9"/></g>
           <path d="M9 51.6 H61 V54 H8 C4.6 54 2.6 51.8 3.2 48.6 C4.6 50.8 6.4 51.6 9 51.6 Z" fill="var(--red)"/>
@@ -960,9 +1038,79 @@ function iceBand(cm, h){
             <ellipse class="pg-arm" cx="33" cy="33.6" rx="3.4" ry="7.4" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
           </g>
         </g>
-      </svg></div>
-      <div class="ice-val" aria-hidden="true"><b>${v}</b><small>cm</small><span>Snowfall</span></div>
-    </div>`;
+      </svg>`;
+const PG_TORCH = walker(pwBody({ front:
+  `<path class="pw-beam" d="M11 36 L-50 20 L-50 54 Z" fill="var(--yellow)" opacity=".34"/><rect x="12.5" y="33.5" width="9.5" height="5" rx="1" fill="#3B3D44"/><rect x="11" y="33" width="2.4" height="6" fill="var(--yellow)"/>`
+  + `<ellipse cx="26" cy="36" rx="3.4" ry="8" transform="rotate(70 26 36)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>` }));
+const PG_UMBRELLA = walker(pwBody({ front:
+  `<g class="pw-umb"><line x1="27" y1="-18" x2="27" y2="-14" stroke="var(--hero-ink)" stroke-width="1.6"/><path d="M8 4 A19 19 0 0 1 46 4 Z" fill="var(--red)"/><path d="M27 -15 L19 4 M27 -15 L35 4" stroke="rgba(0,0,0,.18)" stroke-width="1"/>`
+  + `<line x1="27" y1="4" x2="27" y2="33" stroke="var(--hero-ink)" stroke-width="1.6"/><path d="M27 33 q0 4 -3.6 4" fill="none" stroke="var(--hero-ink)" stroke-width="1.6"/></g>`
+  + `<ellipse cx="30" cy="30" rx="3.4" ry="7.5" transform="rotate(-25 30 30)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>` }));
+const PG_JACKET = walker(pwBody({ body: 'var(--red)', belly: false,
+  neck: `<rect x="18.5" y="23.4" width="13" height="4.2" rx="2.1" fill="var(--yellow)"/>`,
+  head: `<path d="M17 13.4 A8 8 0 0 1 33 13.4 Z" fill="var(--blue)"/><rect x="16.6" y="12" width="16.8" height="2.6" rx="1.3" fill="var(--blue)"/><circle cx="25" cy="4.8" r="2.5" fill="var(--yellow)"/>`,
+  front: `<path d="M18.5 33 Q31 36.5 43.5 33 M17.5 39 Q31 42.5 44.5 39 M19 45 Q31 48 43 45" fill="none" stroke="rgba(255,255,255,.32)" stroke-width="1.3"/>`
+    + `<line x1="24.5" y1="27.6" x2="22" y2="51" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/><ellipse cx="35" cy="37" rx="3.6" ry="8.5" fill="var(--red)" stroke="rgba(0,0,0,.22)"/>` }));
+const SKEL = `<circle cx="31" cy="38" r="14" fill="#151515" opacity=".88"/><circle cx="25" cy="18" r="8" fill="#151515" opacity=".88"/><circle cx="25" cy="18" r="6" fill="#F2EEE5"/>`
+  + `<circle cx="22.4" cy="16.6" r="1.8" fill="#151515"/><circle cx="26.9" cy="16.6" r="1.4" fill="#151515"/><path d="M19 19 L12 20.5 L19 22" fill="none" stroke="#F2EEE5" stroke-width="1.2"/>`
+  + `<g stroke="#F2EEE5" fill="none" stroke-linecap="round"><line x1="28" y1="25" x2="31" y2="49" stroke-width="2"/><path d="M22 31 Q29 34 38 31 M21 36 Q29 39 40 36 M22 41 Q29 44 39 41" stroke-width="1.4"/><path d="M27 49 L25 53 M35 49 L37 53" stroke-width="1.6"/></g>`
+  + `<rect x="25" y="46" width="12" height="3" rx="1.5" fill="#F2EEE5"/>`;
+const PG_STORM = `<svg class="penguin walker storm" viewBox="0 0 64 56"><g class="pw-shock">${FEET}<g class="pw-body"><g class="pw-norm">${pwBody()}</g><g class="pw-skel">${SKEL}</g></g>`
+  + `<path class="pw-sparks" d="M10 10 L4 6 M44 14 L52 9 M48 32 L57 31 M12 40 L4 43 M40 4 L44 -3" stroke="var(--yellow)" stroke-width="1.6" stroke-linecap="round"/>`
+  + `<path class="pw-bolt" d="M30 -420 L20 -250 L33 -246 L16 -96 L30 -92 L23 8 L45 -112 L31 -116 L46 -268 L33 -272 Z" fill="var(--yellow)" stroke="#FFFFFF" stroke-width="1.5"/></g></svg>`;
+// Sunbathing on a towel under a beach umbrella (lying on its back, head left, feet up)
+const PG_BEACH = `<svg class="penguin beach" viewBox="0 0 64 56">
+    <line x1="58" y1="54" x2="52" y2="12" stroke="var(--hero-ink)" stroke-width="1.6"/>
+    <g transform="rotate(-12 52 13)"><path d="M34 13 A18 18 0 0 1 70 13 Z" fill="var(--yellow)"/><path d="M52 -5 A18 18 0 0 1 70 13 L52 13 Z" fill="var(--red)"/></g>
+    <rect x="4" y="50.5" width="48" height="3.5" fill="var(--red)"/><rect x="13" y="50.5" width="4" height="3.5" fill="#FFFFFF"/><rect x="25" y="50.5" width="4" height="3.5" fill="#FFFFFF"/><rect x="37" y="50.5" width="4" height="3.5" fill="#FFFFFF"/>
+    <g class="pb-feet"><ellipse cx="49.5" cy="45.5" rx="2.2" ry="5" transform="rotate(25 49.5 45.5)" fill="#F08A24"/><ellipse cx="45.5" cy="44.5" rx="2.2" ry="5" transform="rotate(-8 45.5 44.5)" fill="#F08A24"/></g>
+    <g class="pb-breathe"><path d="M14 50.5 A17 13 0 0 1 48 50.5 Z" fill="var(--pg-body)" stroke="var(--pg-edge)"/><path d="M18 50.5 A13 9.5 0 0 1 44 50.5 Z" fill="#FFFFFF"/></g>
+    <ellipse cx="19.5" cy="42" rx="3.2" ry="7" transform="rotate(-62 19.5 42)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+    <circle cx="12" cy="44" r="7" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+    <path d="M8.6 38.4 L7.4 31.4 L12.4 37.2 Z" fill="var(--yellow)"/>
+    <rect x="5" y="41.2" width="13.5" height="1.4" fill="#151515"/><circle cx="8.6" cy="43.4" r="2.6" fill="#151515"/><circle cx="14.6" cy="43.4" r="2.6" fill="#151515"/>
+    <rect class="pb-glint" x="7.2" y="41.9" width="1.3" height="2.6" fill="#FFFFFF" opacity="0"/>
+  </svg>`;
+// Driving a yellow Bauhaus car through the fog, left to right
+const wheel = cx => `<g class="cr-wheel" style="transform-origin:${cx}px 47px"><circle cx="${cx}" cy="47" r="6.5" fill="#151515"/><circle cx="${cx}" cy="47" r="2.4" fill="#BDB7AA"/><rect x="${cx - 0.7}" y="41" width="1.4" height="4" fill="#BDB7AA"/></g>`;
+const PG_CAR = `<svg class="penguin car" viewBox="0 0 80 56">
+    <circle class="cr-puff" cx="3" cy="44" r="2.4" fill="var(--faint)"/><circle class="cr-puff" style="animation-delay:-.7s" cx="3" cy="44" r="2" fill="var(--faint)"/>
+    <g class="cr-body">
+      <path d="M74 38 L150 24 L150 54 Z" fill="var(--yellow)" opacity=".28"/>
+      <rect x="4" y="34" width="70" height="13" rx="6.5" fill="var(--yellow)"/>
+      <path d="M18 34 A18 16 0 0 1 54 34 Z" fill="var(--blue)"/><path d="M23 34 A13 11 0 0 1 49 34 Z" fill="#BFD3F0"/>
+      <circle cx="38" cy="28.5" r="6" fill="var(--pg-body)"/><circle cx="40.6" cy="27" r="1.8" fill="#FFFFFF"/><circle cx="41.2" cy="27" r=".9" fill="#151515"/><path d="M43.6 28.6 L48.6 30.1 L43.6 31.6 Z" fill="var(--yellow)"/>
+      <rect x="70" y="37" width="5" height="4" rx="1" fill="#FFFFFF"/><rect x="3" y="37" width="3" height="4" fill="var(--red)"/><line x1="36" y1="35" x2="36" y2="46" stroke="rgba(0,0,0,.2)"/>
+    </g>
+    ${wheel(20)}${wheel(58)}
+  </svg>`;
+const drops = n => Array.from({ length: n }, (_, i) =>
+  `<i style="left:${((i*61) % 100 + (i % 3)*0.3).toFixed(1)}%;--d:${(0.65 + ((i*7) % 5)*0.09).toFixed(2)}s;--dl:${(-((i*13) % 10)/10).toFixed(2)}s"></i>`).join('');
+const ripples = () => [12, 30, 47, 66, 84].map((l, i) => `<i class="ripple" style="left:${l}%;--dl:${(-i*0.37).toFixed(2)}s"></i>`).join('');
+function sceneOf(day){
+  if (day.c === 'sleet') return 'sleet';
+  if (day.c === 'snow' || day.snow >= 0.1) return 'snow';
+  return { clear:'beach', partly:'beach', cloudy:'torch', rain:'rain', storm:'storm', fog:'fog' }[day.c] || null;
+}
+function scene(day){
+  const kind = (SNAP && params.get('scene')) || sceneOf(day); if (!kind) return null;   // scene= is a snapshot-only review hook
+  const mm = day.psum ?? 0, cm = day.snow ?? 0, wind = Math.round(day.wind ?? 0);
+  const fcm = cm < 10 ? cm.toFixed(1) : Math.round(cm), fmm = mm < 10 ? mm.toFixed(1) : Math.round(mm);
+  const val = (v, u, cap) => `<div class="ice-val" aria-hidden="true"><b>${v}</b>${u ? `<small>${u}</small>` : ''}<span>${cap}</span></div>`;
+  const deep = x => Math.round(Math.min(56 + x, 120));
+  const S_ = {
+    snow:  { h: deep(cm*4),  g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Snow'), actor: PG_SKIER, aria: cm >= 0.1 ? `${fcm} cm of snowfall` : 'Snow' },
+    sleet: { h: 64,          g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Sleet'), actor: PG_JACKET, aria: 'Sleet, frost on the ground' },
+    beach: { h: 64,          g:'sand',  lab: day.uv != null ? val(Math.round(day.uv), '', 'UV index') : val(Math.round(day.daylight/3600), 'h', 'Daylight'), actor: PG_BEACH, aria: 'Sunny beach' },
+    torch: { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_TORCH, aria: 'Overcast road' },
+    fog:   { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_CAR, aria: 'Foggy road',
+             fx: `<div class="fx fx-fog" aria-hidden="true"><i style="top:34%;--d:34s"></i><i style="top:56%;--d:24s"></i><i style="top:74%;--d:42s"></i></div>` },
+    rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_UMBRELLA, aria: `${fmm} mm of rain`, rip: true,
+             fx: `<div class="fx fx-rain" aria-hidden="true">${drops(30)}</div>` },
+    storm: { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Storm'), actor: PG_STORM, aria: `Thunderstorm, ${fmm} mm of rain`, rip: true,
+             fx: `<div class="fx fx-rain" aria-hidden="true">${drops(42)}</div><div class="fx fx-flash" aria-hidden="true"></div>` },
+  }[kind];
+  return { h: S_.h, html: (S_.fx || '') + `<div class="band ${S_.g}" style="height:${S_.h}px" role="img" aria-label="${S_.aria}">${S_.rip ? ripples() : ''}<div class="pg-track" aria-hidden="true">${S_.actor}</div>${S_.lab}</div>` };
 }
 const compass = d => ['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];
 function renderFocus(){
@@ -977,17 +1125,17 @@ function renderFocus(){
   const dlH = Math.floor(day.daylight/3600), dlM = Math.round(day.daylight%3600/60);
   const uv = day.uv ?? 0, uvW = uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : 'Very high';
   const wind = Math.round(day.wind ?? 0), hist = day.src === 'hist', outlook = day.src === 'outlook';
-  const snowy = day.snow >= 0.1, band = Math.round(Math.min(56 + day.snow*4, 120));   // ice gets deeper with more snow
+  const sc = scene(day);
   const stat = (lbl, glyph, v, unit, sub, meter) => `<div class="stat"><div class="h"><span class="label">${lbl}</span>${glyph}</div><div class="v">${v}<small>${unit||''}</small></div>${meter ? `<div class="meter"><i style="width:${meter[0]}%;background:${meter[1]}"></i></div>` : ''}<div class="s">${sub}</div></div>`;
   const sq = c => `<i style="width:12px;height:12px;background:${c};display:block"></i>`, ci = c => `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:block"></i>`, tr = c => `<i style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid ${c};display:block"></i>`;
   $('#sheet').innerHTML = `
-    <section class="hero${snowy ? ' has-snow' : ''}" style="background:var(--t-${tintOf(day)})${snowy ? `;--band:${band}px` : ''}">
+    <section class="hero${sc ? ' has-scene' : ''}" style="background:var(--t-${tintOf(day)})${sc ? `;--band:${sc.h}px` : ''}">
       <div class="date"><span>${rel}</span>${dateStr}</div>
       <div class="art">${icon(day.c, true, day.sev)}</div>
       <div class="word">${dayWord(day)}</div>
       <div class="desc">${outlook ? `Ensemble outlook · ${day.pprob}% of ${day.runs} model runs bring rain` : (WMO[day.code] || '') + (hist ? ` · ${(day.psum ?? 0).toFixed(1)} mm recorded` : day.pprob ? ` · ${day.pprob}% chance of precipitation` : '')}</div>
       <div class="temps"><b>${outlook ? '≈' : ''}${T(day.tmax)}</b><span>${T(day.tmin)}</span></div>
-      ${snowy ? iceBand(day.snow, band) : ''}
+      ${sc ? sc.html : ''}
     </section>
     <section class="detail">
       ${head}
