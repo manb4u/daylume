@@ -265,49 +265,135 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .padd{border:1.5px dashed var(--faint);background:transparent;align-items:center;justify-content:center;gap:14px;color:var(--muted);font-size:15px;font-weight:500}
 .padd .plus{width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
 .padd .plus svg{width:20px;height:20px;stroke:currentColor;stroke-width:2.4}
+/* ===== Small screens only (≤1100px). Everything above this width is the desktop UI and stays untouched. ===== */
+/* Tablet: stacked page — location + now on top, the month below, sun / week / legend after it. */
 @media (max-width:1100px){
-  .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:auto;min-height:100vh}
-  .grid{grid-template-rows:repeat(6,minmax(110px,1fr))}
-  header{flex-wrap:wrap;padding:14px 16px;gap:10px}
-  .brand{width:auto}
-  .search input{width:180px}
-  aside{border-right:0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));padding:20px 16px}
-  .legend{display:none}
-  .sheet{grid-template-columns:1fr}
-  .pgrid{grid-template-columns:1fr 1fr}
-  .hero{min-height:auto;border-radius:28px 28px 0 0}
+  .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:none;
+    grid-template-areas:"head head" "loc now" "cal cal" "sun week" "legend legend";height:auto;min-height:100vh}
+  .app>*,.locbox,#side .now,.sunarc,.weekbox,.legendbox{min-width:0}
+  /* Header: brand + search + units + theme on row one, month navigation on row two */
+  header{grid-area:head;flex-wrap:wrap;gap:10px 12px;padding:12px 24px}
+  header::before{content:"";order:4;flex-basis:100%;height:0}
+  .brand{width:auto;flex:1;order:0}
+  .spacer{display:none}
+  .search{order:1}.seg{order:2}.mode-chip{order:3}
+  #todayBtn{order:5}.nav{order:6}.month-title{order:7}
+  /* Touch targets: 44px minimum; 16px input text stops iOS zooming on focus */
+  .btn{height:44px}
+  .icon-btn{width:44px;height:44px}
+  .seg button{height:36px;min-width:44px}
+  .mode-chip{height:44px}
+  .search input{height:44px;width:220px;font-size:16px}
+  .search>svg{top:14px}
+  /* The sidebar's sections join the page grid */
+  aside{display:contents}
+  .locbox{grid-area:loc;padding:20px 24px;z-index:20}
+  #side .now{grid-area:now;padding:20px 24px;align-self:start}
+  main{grid-area:cal;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .sunarc{grid-area:sun;padding:24px}
+  .sunarc svg{max-width:360px}
+  .weekbox{grid-area:week;padding:24px}
+  .legendbox{grid-area:legend;padding:0 24px 32px}
+  .legend{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .grid{grid-template-rows:repeat(6,minmax(112px,auto))}
+  #side .now .temp{font-size:80px}
+  /* Day view: a single scrolling column with the navigation pinned on top */
+  .sheet{display:flex;flex-direction:column}
+  .sheet>*,.detail>*{flex-shrink:0}
+  .detail{display:contents}
+  .dhead{order:-1;position:sticky;top:0;z-index:2;background:var(--surface);padding:10px 16px 10px 24px;border-bottom:1px solid var(--line)}
+  .hero{min-height:0;border-radius:0}
   .hero .art svg{width:200px;height:200px}
+  .chart{margin:24px 24px 0}
+  .stats{margin:12px 24px 24px}
+  .pgrid{grid-template-columns:1fr 1fr}
+  .pcard .tags{flex-wrap:wrap;row-gap:6px}
+  .tag{white-space:nowrap;padding:4px 7px;letter-spacing:.08em}
 }
+/* Narrow tablet: tighter day cells and header */
+@media (max-width:900px){
+  .cell .ic{width:44px;height:44px}
+  .cell .tmax{font-size:26px}
+  /* the symbol already names the weather, so keep just the value when there is one */
+  .cell .c>span:first-child:not(:only-child){display:none}
+}
+@media (max-width:820px){
+  .mode-chip em{display:none}
+  .search input{width:180px}
+}
+/* Phone */
 @media (max-width:640px){
-  .app{grid-template-columns:minmax(0,1fr)}
-  .app>*{min-width:0}
-  header{display:flex;flex-wrap:wrap}
-  .brand{flex:1;order:0}
+  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "loc" "now" "cal" "sun" "week" "legend"}
+  header{gap:8px;padding:8px 16px 12px}
   .brand b{font-size:20px}
-  .seg{order:1}.mode-chip{order:2;padding:0 6px}
-  .mode-chip span:not(.dot){display:none}
-  #todayBtn{order:3}.nav{order:4}.month-title{order:5;flex:1;text-align:right}
-  main{order:2}
-  aside{order:3;grid-template-columns:minmax(0,1fr);gap:22px;border-top:1px solid var(--line)}
-  .sunarc svg{max-height:120px}
-  .week button{grid-template-columns:44px 28px 1fr 64px}
-  .mode-chip em,.search{display:none}
-  .month-title{font-size:20px}
-  .grid{grid-template-rows:repeat(6,minmax(88px,1fr))}
-  .cell{padding:6px}
-  .cell .d{margin:0;width:24px;height:24px;font-size:12px}
-  .cell .ic{position:static;width:30px;height:30px;margin:2px auto 0}
-  .cell .tmax{font-size:18px}
-  .cell .tmin,.cell .c{display:none}
-  .dow div{padding:8px 6px;font-size:10px;letter-spacing:.08em}
+  .mode-chip{width:44px;padding:0;gap:0;justify-content:center}
+  .mode-chip>span:not(.dot),.mode-chip em{display:none}
+  .month-title{flex:1;text-align:right;font-size:clamp(17px,5vw,20px)}
+  .search{order:8;flex-basis:100%}
+  .search input{width:100%}
+  .results{width:100%;top:50px}
+  .switcher{left:0;right:0}
+  /* Location and current weather as a compact strip above the month */
+  .locbox{padding:16px 16px 0}
+  #side .now{padding:12px 16px 16px;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"t c i" "t m i";column-gap:14px;row-gap:2px;align-items:center}
+  #side .now .temp{grid-area:t;font-size:60px}
+  #side .now .temp sup{font-size:26px;top:4px}
+  #side .now>div:nth-child(2){grid-area:i;width:56px!important;height:56px!important}
+  #side .now .cond{grid-area:c;margin-top:0;font-size:15px;align-self:end}
+  #side .now .meta{grid-area:m;font-size:13px;gap:10px;align-self:start;flex-wrap:wrap}
+  /* Month: symbol and high only, centred in each day */
+  .dow div{padding:8px 0;text-align:center;font-size:10px;letter-spacing:.08em}
+  .grid{grid-template-rows:repeat(6,minmax(84px,auto))}
+  .cell{padding:6px 4px 8px;align-items:center;text-align:center}
+  .cell .d{align-self:flex-start;margin:0;width:24px;height:24px;font-size:12px}
+  .cell .ic{position:static;width:32px;height:32px;margin:2px 0}
+  .cell .wx{flex:0 0 auto;align-items:center}
+  .cell .tmax{font-size:17px;letter-spacing:-.02em}
+  .cell .tmin,.cell .c,.cell.nodata .wx{display:none}
+  .hatch{position:static;width:28px;height:28px;margin:4px 0}
+  .sunarc{padding:20px 16px 8px}
+  .sunarc svg{max-width:none}
+  .weekbox{padding:12px 16px 20px}
+  .legendbox{padding:0 16px 28px}
+  .legend{grid-template-columns:1fr 1fr}
+  /* Day view: full screen */
   .focus{padding:0}
-  .sheet{border-radius:0;max-height:100vh;height:100vh}
-  .hero{border-radius:0}
-  .hero .word{font-size:44px}
-  .stats{grid-template-columns:1fr 1fr}
-  .pgrid{grid-template-columns:1fr}
-  .psheet{border-radius:0;max-height:100vh;height:100vh;padding:20px 16px}
-  .now .temp{font-size:72px}
+  .sheet{width:100%;border-radius:0;height:100vh;height:100dvh;max-height:none}
+  .dhead{padding:6px 8px 6px 16px}
+  .hero{padding:20px 16px 24px}
+  .hero .art{padding:4px 0}
+  .hero .art svg{width:150px;height:150px}
+  .hero .word{font-size:40px}
+  .hero .desc{font-size:15px}
+  .hero .temps{margin-top:14px}
+  .hero .temps b{font-size:44px}
+  .chart{margin:16px 16px 0;padding:14px 12px 8px}
+  .chart .top{flex-wrap:wrap;gap:6px 12px;margin-bottom:10px}
+  .chart .top .k{flex-wrap:wrap;gap:4px 12px}
+  .cscroll{overflow-x:auto;margin:0 -12px;padding:0 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .cscroll::-webkit-scrollbar{display:none}
+  .cscroll svg{min-width:600px}
+  .stats{margin:12px 16px 24px;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:14px;min-height:100px}
+  .stat .v{font-size:26px}
+  /* Saved locations: full screen */
+  .psheet{width:100%;border-radius:0;height:100vh;height:100dvh;max-height:none;padding:16px 16px 32px}
+  .ph{flex-wrap:wrap;gap:12px 8px;margin-bottom:20px}
+  .ph>div{order:1;flex-basis:100%}
+  .ph .btn{margin-right:auto}
+  .ph h2{font-size:34px}
+  .ph p{font-size:14px}
+  .pgrid{grid-template-columns:1fr;gap:12px}
+  .pcard{min-height:196px}
+  .pcard .tp{font-size:56px}
+  .pcard .ic{width:64px;height:64px}
+  /* Messages clear the home indicator and never run off screen */
+  .toast,.err{bottom:calc(16px + env(safe-area-inset-bottom, 0px));max-width:calc(100% - 32px)}
+  .toast{white-space:normal}
+}
+/* Small phones */
+@media (max-width:380px){
+  #todayBtn{padding:0 14px}
 }
 </style>
 </head>
@@ -656,12 +742,12 @@ function renderSide(){
       </svg>
       <div class="row"><div><span>Sunrise</span><b>${hm(today.sunrise)}</b></div><div style="text-align:right"><span>Sunset</span><b>${hm(today.sunset)}</b></div></div>
     </div>
-    <div>
+    <div class="weekbox">
       <div class="label" style="margin-bottom:8px">Next 7 days</div>
       <div class="week">${ks.map((k,i)=>{ const d=S.days[k]; const l=(d.tmin-lo)/(hi-lo||1)*100, w=(d.tmax-d.tmin)/(hi-lo||1)*100;
         return `<button data-k="${k}"><span class="wd">${i===0?'Today':WD[parseKey(k).getUTCDay()].slice(0,3)}</span><span style="width:28px;height:28px">${icon(d.c, true, d.sev)}</span><span class="bar"><i style="left:${l}%;width:${Math.max(w,4)}%"></i></span><span class="tt">${T(d.tmax)} <span>${T(d.tmin)}</span></span></button>`;}).join('')}</div>
     </div>
-    <div>
+    <div class="legendbox">
       <div class="label" style="margin-bottom:12px">Legend</div>
       <div class="legend">${['clear','partly','cloudy','rain','snow','sleet','storm','fog'].map(c=>`<div><span style="width:24px;height:24px">${icon(c)}</span>${WORD[c]}</div>`).join('')}<div><span class="lg-outlook">≈</span>Outlook</div></div>
     </div>`;
@@ -742,8 +828,8 @@ function renderFocus(){
     </section>
     <section class="detail">
       ${head}
-      ${outlook ? `<div class="chart"><div class="top"><span class="label">Model spread · ${day.runs} runs</span><span class="k"><span><i style="background:var(--red);border-radius:50%"></i>High</span><span><i style="background:var(--blue);border-radius:50%"></i>Low</span><span><i style="background:var(--ink);width:3px"></i>Average</span></span></div>${spreadChart(day)}</div>`
-        : `<div class="chart"><div class="top"><span class="label">Hourly${hist ? ' · recorded' : ''}</span><span class="k"><span><i style="background:var(--ink);height:2px;vertical-align:3px"></i>Temperature</span><span><i style="background:var(--blue)"></i>${hist ? 'Precipitation' : 'Precip. chance'}</span><span><i style="background:var(--yellow);opacity:.5"></i>Daylight</span></span></div>${chart(day)}</div>`}
+      ${outlook ? `<div class="chart"><div class="top"><span class="label">Model spread · ${day.runs} runs</span><span class="k"><span><i style="background:var(--red);border-radius:50%"></i>High</span><span><i style="background:var(--blue);border-radius:50%"></i>Low</span><span><i style="background:var(--ink);width:3px"></i>Average</span></span></div><div class="cscroll">${spreadChart(day)}</div></div>`
+        : `<div class="chart"><div class="top"><span class="label">Hourly${hist ? ' · recorded' : ''}</span><span class="k"><span><i style="background:var(--ink);height:2px;vertical-align:3px"></i>Temperature</span><span><i style="background:var(--blue)"></i>${hist ? 'Precipitation' : 'Precip. chance'}</span><span><i style="background:var(--yellow);opacity:.5"></i>Daylight</span></span></div><div class="cscroll">${chart(day)}</div></div>`}
       <div class="stats">
         ${stat('Sunrise', ci('var(--yellow)'), hm(day.sunrise), '', `Sunset ${hm(day.sunset)}`)}
         ${stat('Daylight', sq('var(--yellow)'), dlH+'h '+dlM, 'm', 'Length of the day', [day.daylight/864, 'var(--yellow)'])}
