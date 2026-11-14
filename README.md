@@ -81,7 +81,7 @@ Click or tap any day to open it.
   - **Rainy**: sitting in a little yellow boat under an umbrella, rocking gently and drifting right to left on the water while rain falls and ripples spread (rain in mm)
   - **Snow**: skiing with goggles, scarf and poles over frosted ice (snowfall in cm; the ice deepens with more snow)
   - **Sleet**: walking in a quilted winter jacket and beanie over frosted ice
-  - **Storm**: walking through heavy rain until lightning strikes — a flash, an x-ray flicker — and walking off as a skeleton, on water
+  - **Storm**: walking through heavy rain until lightning strikes — a flash, an x-ray flicker — and walking off as a skeleton, on a road
   - **Fog**: driving a little yellow car left to right along a road while fog banks drift past (wind)
   All scenes loop continuously and hold still if your device is set to reduce motion.
 - **Hourly chart**: temperature line, rain bars and the daylight hours. Today shows a red **NOW** marker.

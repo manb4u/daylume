@@ -1130,7 +1130,7 @@ function scene(day){
              fx: `<div class="fx fx-fog" aria-hidden="true"><i style="top:34%;--d:34s"></i><i style="top:56%;--d:24s"></i><i style="top:74%;--d:42s"></i></div>` },
     rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_BOAT, aria: `Rain, ${fmm} mm`, rip: true,
              fx: `<div class="fx fx-rain" aria-hidden="true">${drops(30)}</div>` },
-    storm: { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Storm'), actor: PG_STORM, aria: `Thunderstorm, ${fmm} mm of rain`, rip: true,
+    storm: { h: 60,          g:'road',  lab: val(fmm, 'mm', 'Storm'), actor: PG_STORM, aria: `Thunderstorm, ${fmm} mm of rain`,
              fx: `<div class="fx fx-rain" aria-hidden="true">${drops(42)}</div><div class="fx fx-flash" aria-hidden="true"></div>` },
   }[kind];
   return { h: S_.h, html: (S_.fx || '') + `<div class="band ${S_.g}" style="height:${S_.h}px" role="img" aria-label="${S_.aria}">${S_.rip ? ripples() : ''}<div class="pg-track" aria-hidden="true">${S_.actor}</div>${S_.lab}</div>` };
