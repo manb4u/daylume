@@ -543,6 +543,19 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .mode-chip em{display:none}
   .search input{width:180px}
 }
+/* iPad portrait only (tablet widths held upright): compact location section in four corners
+   top-left: location · top-right: Save · bottom-left: temperature + conditions · bottom-right: icon */
+@media (min-width:641px) and (max-width:1100px) and (orientation:portrait){
+  .app{grid-template-areas:"head head" "loc loc" "now now" "cal cal" "sun week" "legend legend"}
+  .locbox{padding:18px 24px 0}
+  .switcher{top:calc(100% + 12px);left:12px;right:auto;width:min(360px,calc(100% - 24px))}
+  #side .now{padding:6px 24px 18px;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"t c i" "t m i";column-gap:16px;row-gap:2px;align-items:center}
+  #side .now .temp{grid-area:t;font-size:60px}
+  #side .now .temp sup{font-size:26px;top:4px}
+  #side .now>div:nth-child(2){grid-area:i;width:60px!important;height:60px!important}
+  #side .now .cond{grid-area:c;margin-top:0;font-size:16px;align-self:end}
+  #side .now .meta{grid-area:m;font-size:13px;gap:12px;align-self:start}
+}
 /* Phone */
 @media (max-width:640px){
   .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "loc" "now" "cal" "sun" "week" "legend"}
