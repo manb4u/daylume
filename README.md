@@ -87,6 +87,12 @@ Click or tap any day to open it.
 - Click the **city name** in the sidebar to open your saved places, each with its current temperature and local time. Pick one to switch.
 - **Manage** opens all your places as cards. Each card is light or dark depending on whether it's day or night there. Make one your **Home** (it opens first) or remove it with **×**.
 
+### Sun and moon
+- By day the sidebar shows the **sun** on its arc between sunrise and sunset.
+- After sunset it switches to the **moon**: the current phase (new, crescent, quarter, gibbous, full; waxing or waning), drawn as it looks in the sky — lit on the right while waxing, on the left while waning, mirrored in the southern hemisphere. If the moon is up it sits on the arc between moonrise and moonset; otherwise it's shown below the horizon.
+- You also get moonrise, moonset (`+1` / `−1` marks another day), how much of the moon is lit, and the date of the next full or new moon.
+- Moon data is calculated in the app from standard astronomical formulas (Meeus), so it works offline and for any city. It matches the US Naval Observatory to within about 2 minutes for rise/set and a few minutes for phase times.
+
 ### Day and night theme
 - daylume switches to **light** at local sunrise and **dark** at local sunset, at the location you're viewing. The chip at the top right shows the next change.
 - Click the chip to choose: **Auto → Light → Dark → Auto**.
