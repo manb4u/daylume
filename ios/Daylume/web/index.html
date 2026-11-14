@@ -716,6 +716,14 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .focus.open .sheet,.focus.open .psheet,.focus.open .ssheet{transform:none}
   .sheet{height:auto;max-height:94dvh}
   .dhead{padding:18px 12px 8px 16px;touch-action:none}
+  /* Day view: header and hero read as one block, both painted with the day's weather tint (Apple Weather style) */
+  .dhead{background:var(--day-tint,var(--surface));border-bottom:0;color:var(--hero-ink);gap:8px;padding-bottom:0}
+  .dhead .t{font-size:15px;font-weight:600;color:var(--hero-ink);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .dhead .icon-btn{width:40px;height:40px;border:0;border-radius:50%;background:color-mix(in srgb,var(--hero-ink) 8%,transparent);color:var(--hero-ink)}
+  .dhead .icon-btn:hover{background:color-mix(in srgb,var(--hero-ink) 14%,transparent)}
+  .dhead .close{margin-left:4px}
+  .hero{padding-top:12px}
+  .hero .date span{display:none}
   .psheet{position:relative;height:88dvh;max-height:none;padding:16px 12px 0}
   .ph{touch-action:none;padding-top:8px}
   .pgrid{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));grid-auto-rows:max-content}   /* rows fit their cards instead of squeezing to the sheet height */
@@ -1429,13 +1437,14 @@ function renderFocus(){
       <button class="icon-btn" data-go="${prevKey(k)}" aria-label="Previous day" ${S.days[prevKey(k)]?'':'disabled style="opacity:.3"'}><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="icon-btn" data-go="${nextKey(k)}" aria-label="Next day" ${S.days[nextKey(k)]?'':'disabled style="opacity:.3"'}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
       <button class="icon-btn close" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;
-  if (!day){ $('#sheet').innerHTML = `<div class="detail" style="grid-column:1/-1">${head}<div class="nodata-msg">${k > S.todayKey ? `Available soon. Weather for ${dateStr} appears once it is within 30 days.` : `No record for ${dateStr}. History goes back one year.`}</div></div>`; return; }
+  if (!day){ $('#sheet').style.removeProperty('--day-tint'); $('#sheet').innerHTML = `<div class="detail" style="grid-column:1/-1">${head}<div class="nodata-msg">${k > S.todayKey ? `Available soon. Weather for ${dateStr} appears once it is within 30 days.` : `No record for ${dateStr}. History goes back one year.`}</div></div>`; return; }
   const dlH = Math.floor(day.daylight/3600), dlM = Math.round(day.daylight%3600/60);
   const uv = day.uv ?? 0, uvW = uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : 'Very high';
   const wind = Math.round(day.wind ?? 0), hist = day.src === 'hist', outlook = day.src === 'outlook';
   const sc = S.set.scenes ? scene(day) : null;
   const stat = (lbl, glyph, v, unit, sub, meter) => `<div class="stat"><div class="h"><span class="label">${lbl}</span>${glyph}</div><div class="v">${v}<small>${unit||''}</small></div>${meter ? `<div class="meter"><i style="width:${meter[0]}%;background:${meter[1]}"></i></div>` : ''}<div class="s">${sub}</div></div>`;
   const sq = c => `<i style="width:12px;height:12px;background:${c};display:block"></i>`, ci = c => `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:block"></i>`, tr = c => `<i style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid ${c};display:block"></i>`;
+  $('#sheet').style.setProperty('--day-tint', `var(--t-${tintOf(day)})`);
   $('#sheet').innerHTML = `
     <section class="hero${sc ? ' has-scene' : ''}" style="background:var(--t-${tintOf(day)})${sc ? `;--band:${sc.h}px` : ''}">
       <div class="date"><span>${rel}</span>${dateStr}</div>
