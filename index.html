@@ -801,8 +801,8 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .snav button:focus-visible{outline-offset:-3px}
   .snav .sh{display:none}
   /* 'Settings' title on the left, level with the close button; tabs 12px below; one background for the whole sheet */
-  .snav{flex-wrap:wrap;padding-top:16px;background:transparent}
-  .snav h2{display:flex;align-items:center;flex-basis:100%;height:44px;padding:0;margin-bottom:12px;font-size:22px;font-weight:600;letter-spacing:-.01em}
+  .snav{flex-wrap:wrap;margin:0 16px;padding:16px 0 0;background:transparent}   /* divider inset like the rows below */
+  .snav h2{display:flex;align-items:center;flex-basis:100%;height:44px;padding:0;margin-bottom:0;font-size:22px;font-weight:600;letter-spacing:-.01em}
   .shead{padding:0;border-bottom:0}
   .shead>div{display:none}   /* the tab already names the section */
   .shead .close{position:absolute;top:16px;right:12px}
@@ -946,7 +946,7 @@ const S = {
   view: null, selected: null,
   unit: params.get('unit') || store.get('wc.unit') || 'C',
   themePref: params.get('theme') || (SNAP ? 'auto' : (store.get('wc.theme') || 'auto')),
-  set: Object.assign({ wind:'kmh', time:'24', week:'mon', outlook:true, scenes:true, motion:true, showSun:true, showWeek:true, showLegend:true, palette:'bauhaus', font:'jakarta' },
+  set: Object.assign({ wind:'kmh', time:'24', week:'mon', outlook:true, scenes:true, motion:true, showSun:true, showWeek:true, showLegend:true, palette:'bauhaus', font:'jakarta', lang:'en' },
     SNAP ? {} : (store.get('wc.settings') || {})),
 };
 
@@ -1853,6 +1853,10 @@ const PALETTES = { bauhaus:['Bauhaus','Red, yellow, blue',['#F3B415','#DE3B26','
 const segCtl = (key, opts, cur) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-set="${key}" data-val="${v}" role="radio" aria-checked="${v === cur}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 const swCtl = (key, label) => `<button class="switch" role="switch" data-set="${key}" aria-checked="${!!S.set[key]}" aria-label="${label}"></button>`;
 const CHK = `<svg class="chk" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+const LANGS = { en:'English', de:'Deutsch', es:'Español', fr:'Français', it:'Italiano', hi:'हिन्दी', zh:'中文（普通话）', pt:'Português' };
+const langCtl = () => `<div class="fsel-wrap"><button class="fsel" id="langSel" aria-haspopup="listbox" aria-expanded="${!!S.langOpen}">${LANGS[S.set.lang] || LANGS.en}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    ${S.langOpen ? `<div class="fmenu" role="listbox" aria-label="Language">${Object.entries(LANGS).map(([k, n]) =>
+      `<button class="fopt" role="option" data-lang="${k}" lang="${k}" aria-selected="${k === (S.set.lang || 'en')}">${n}${CHK}</button>`).join('')}</div>` : ''}</div>`;
 const fontCtl = () => { const [name, stack] = FONTS[S.set.font];
   return `<div class="fsel-wrap"><button class="fsel" id="fontSel" aria-haspopup="listbox" aria-expanded="${!!S.fontOpen}" style="font-family:${stack}">${name}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
     ${S.fontOpen ? `<div class="fmenu" role="listbox" aria-label="Font">${Object.entries(FONTS).map(([k, [n, st]]) =>
@@ -1860,6 +1864,8 @@ const fontCtl = () => { const [name, stack] = FONTS[S.set.font];
 const srow = (t, sub, ctl) => `<div class="srow"><div><b>${t}</b>${sub ? `<small>${sub}</small>` : ''}</div>${ctl}</div>`;
 function settingsBody(tab){
   if (tab === 'general') return `
+    <div class="sgroup"><div class="label">Languages</div>
+      ${srow('Language', '', langCtl())}</div>
     <div class="sgroup"><div class="label">Units</div>
       ${srow('Temperature', '', segCtl('unit', [['C','°C'],['F','°F']], S.unit))}
       ${srow('Wind speed', '', segCtl('wind', [['kmh','km/h'],['mph','mph'],['ms','m/s']], S.set.wind))}</div>
@@ -1900,9 +1906,10 @@ function renderSettings(){
   S.stabKeep = tab;
 }
 function openSettings(tab){ S.switcher = false; renderSide(); S.stab = tab || S.stab || 'general'; S.stabKeep = null; renderSettings(); $('#settings').classList.add('open'); }
-function closeSettings(){ S.fontOpen = false; $('#settings').classList.remove('open'); updateTabbar(); }
+function closeSettings(){ S.fontOpen = false; S.langOpen = false; $('#settings').classList.remove('open'); updateTabbar(); }
 function applySettings(){
   const h = document.documentElement;
+  h.lang = S.set.lang || 'en';
   loadFont(S.set.font); h.style.setProperty('--font', FONTS[S.set.font][1]);
   h.dataset.palette = S.set.palette;
   h.classList.toggle('no-motion', !S.set.motion);
@@ -1921,8 +1928,11 @@ function setOption(key, val){
 $('#settingsBtn').addEventListener('click', () => openSettings());
 $('#ssheet').addEventListener('click', e => {
   const t = e.target;
-  if (t.closest('#fontSel')){ S.fontOpen = !S.fontOpen; if (S.fontOpen) Object.keys(FONTS).forEach(loadFont); renderSettings(); return; }   // previews need every face
+  if (t.closest('#fontSel')){ S.langOpen = false; S.fontOpen = !S.fontOpen; if (S.fontOpen) Object.keys(FONTS).forEach(loadFont); renderSettings(); return; }   // previews need every face
   const fo = t.closest('[data-font]'); if (fo){ S.fontOpen = false; S.set.fontPicked = true; return setOption('font', fo.dataset.font); }
+  if (t.closest('#langSel')){ S.langOpen = !S.langOpen; S.fontOpen = false; renderSettings(); return; }
+  const lo = t.closest('[data-lang]'); if (lo){ S.langOpen = false; return setOption('lang', lo.dataset.lang); }
+  if (S.langOpen && !t.closest('.fmenu')){ S.langOpen = false; renderSettings(); if (isPhone()) return; }
   if (S.fontOpen && !t.closest('.fmenu')){ S.fontOpen = false; renderSettings(); if (isPhone()) return; }   // on phones a tap on the dimmed area only closes the sheet
   const tb = t.closest('[data-stab]'); if (tb){ S.stab = tb.dataset.stab; renderSettings(); return; }
   if (t.closest('[data-close-settings]')) return closeSettings();
@@ -1930,7 +1940,7 @@ $('#ssheet').addEventListener('click', e => {
   const sg = t.closest('[data-set][data-val]'); if (sg) return setOption(sg.dataset.set, sg.dataset.val);
   const pl = t.closest('.palette[data-palette]'); if (pl) return setOption('palette', pl.dataset.palette);   // not the <html data-palette> itself
   if (t.closest('[data-reset]')){
-    S.set = { wind:'kmh', time:'24', week:'mon', outlook:true, scenes:true, motion:true, showSun:true, showWeek:true, showLegend:true, palette:'bauhaus', font:'jakarta' };
+    S.set = { wind:'kmh', time:'24', week:'mon', outlook:true, scenes:true, motion:true, showSun:true, showWeek:true, showLegend:true, palette:'bauhaus', font:'jakarta', lang:'en' };
     S.unit = 'C'; store.set('wc.unit', 'C'); S.themePref = 'auto'; store.set('wc.theme', 'auto'); applyTheme();
     setOption('outlook', true);
   }
@@ -1991,6 +2001,7 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.searchOpen){ closeSearchSheet(); return; }
   if (e.key === 'Escape' && S.fontOpen){ S.fontOpen = false; renderSettings(); $('#fontSel')?.focus(); return; }
+  if (e.key === 'Escape' && S.langOpen){ S.langOpen = false; renderSettings(); $('#langSel')?.focus(); return; }
   if (e.key === 'Escape' && $('#settings').classList.contains('open')) return closeSettings();
   if (e.key === 'Escape' && $('#places').classList.contains('open')) return closePlaces();
   if (e.key === 'Escape' && S.switcher) { S.switcher = false; return renderSide(); }
