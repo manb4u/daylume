@@ -75,6 +75,7 @@ To make daylume ask again from scratch, clear the site's data (see [Reset daylum
 ### Focused day view
 Click or tap any day to open it.
 - The large weather symbol is **animated on a loop** — the same motion you see when hovering a day, but always on.
+- On **snowy days** the bottom of the left panel shows the snowfall: a snow line with frosted ice beneath it and the amount in cm (the ice gets deeper with more snow), and a small penguin waddling slowly along the line from right to left.
 - **Hourly chart**: temperature line, rain bars and the daylight hours. Today shows a red **NOW** marker.
 - **Tiles**: sunrise and sunset, daylight length, precipitation or snowfall, wind, UV (or *Wet hours* for past days) and the temperature range.
 - **Outlook days** show a *Model spread* chart instead: each dot is one model run, the bar is the average, and a **Confidence** tile tells you how much the runs agree.

@@ -13,6 +13,7 @@
   --line:rgba(21,21,21,.10); --line-strong:#151515;
   --red:#DE3B26; --yellow:#F3B415; --blue:#1F4FA8; --grey:#BDB7AA; --cloud-dark:#59584F; --snow:#FFFFFF;
   --t-clear:#FAEBBE; --t-partly:#E4E9F0; --t-cloudy:#E8E4DB; --t-fog:#ECE9E2; --t-rain:#DBE3F1; --t-snow:#F1F4F8; --t-storm:#F5DAD3; --t-none:transparent; --t-heavy:#DCE6F3; --t-sleet:#E1E6EE; --snowcap:#FFFFFF; --moon-dark:rgba(21,21,21,.07);
+  --ice-top:rgba(255,255,255,.9); --ice-bottom:rgba(212,226,244,.92); --ice-line:rgba(31,79,168,.07); --ice-glint:rgba(255,255,255,.8); --pg-body:#151515; --pg-edge:transparent;
   --hero-ink:#151515; --shadow:0 30px 80px rgba(20,18,12,.18);
   --scrim:rgba(242,238,229,.72);
 }
@@ -21,6 +22,7 @@
   --line:rgba(239,235,226,.09); --line-strong:#EFEBE2;
   --red:#E8553F; --yellow:#F2C232; --blue:#5584E0; --grey:#6A6C74; --cloud-dark:#3B3D44; --snow:#E9EEF6;
   --t-clear:#2E2814; --t-partly:#1C2130; --t-cloudy:#1F2024; --t-fog:#1D1E21; --t-rain:#141D33; --t-snow:#1B2029; --t-storm:#321915; --t-heavy:#1E2A3F; --t-sleet:#192030; --snowcap:#2B3647; --moon-dark:rgba(239,235,226,.08);
+  --ice-top:rgba(196,216,244,.18); --ice-bottom:rgba(120,152,204,.12); --ice-line:rgba(233,238,246,.07); --ice-glint:rgba(255,255,255,.14); --pg-body:#15171c; --pg-edge:rgba(239,235,226,.35);
   --hero-ink:#EFEBE2; --shadow:0 30px 80px rgba(0,0,0,.55);
   --scrim:rgba(10,11,13,.72);
 }
@@ -160,6 +162,30 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
 .err{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;z-index:90}
 
 
+/* Day view: snowfall line, frosted ice and a walking penguin */
+.hero.has-snow{padding-bottom:calc(var(--band) + 60px)}   /* leaves a clear lane above the line for the penguin */
+.iceband{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:center;padding:0 32px;border-top:2px solid var(--blue);
+  background:repeating-linear-gradient(60deg,transparent 0 14px,var(--ice-line) 14px 15px),repeating-linear-gradient(-60deg,transparent 0 22px,var(--ice-line) 22px 23px),linear-gradient(180deg,var(--ice-top),var(--ice-bottom));
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.iceband::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:linear-gradient(180deg,var(--ice-glint),transparent);pointer-events:none}
+.ice-val{position:relative;display:flex;align-items:baseline;gap:5px;color:var(--hero-ink)}
+.ice-val b{font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1}
+.ice-val small{font-size:14px;opacity:.7}
+.ice-val span{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.6;margin-left:10px}
+.pg-track{position:absolute;left:0;right:0;bottom:100%;height:44px;margin-bottom:2px;pointer-events:none}
+.penguin{position:absolute;bottom:-2px;left:68%;width:34px;height:41px;overflow:visible}
+.penguin .pg-body{transform-origin:20px 46px}
+@media (prefers-reduced-motion:no-preference){
+  .penguin{animation:pg-walk 28s linear infinite}
+  .penguin .pg-body{animation:pg-waddle .75s ease-in-out infinite alternate}
+  .penguin .pg-fa{animation:pg-step .75s ease-in-out infinite alternate}
+  .penguin .pg-fb{animation:pg-step .75s ease-in-out -.75s infinite alternate}
+  .penguin .pg-wing{animation:pg-wing .75s ease-in-out infinite alternate;transform-origin:27px 21px}
+}
+@keyframes pg-walk{from{left:calc(100% + 10px)}to{left:-50px}}
+@keyframes pg-waddle{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+@keyframes pg-step{from{transform:translateY(0)}to{transform:translateY(-2.5px)}}
+@keyframes pg-wing{from{transform:rotate(4deg)}to{transform:rotate(-10deg)}}
 /* Range: history + outlook */
 .icon-btn:disabled{opacity:.28;cursor:default;background:none}
 .cell.next{background-image:repeating-linear-gradient(135deg,transparent 0 9px,var(--line) 9px 10px)}
@@ -371,6 +397,7 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .hero .desc{font-size:15px}
   .hero .temps{margin-top:14px}
   .hero .temps b{font-size:44px}
+  .iceband{padding:0 16px}
   .chart{margin:16px 16px 0;padding:14px 12px 8px}
   .chart .top{flex-wrap:wrap;gap:6px 12px;margin-bottom:10px}
   .chart .top .k{flex-wrap:wrap;gap:4px 12px}
@@ -895,6 +922,24 @@ function spreadChart(day){
   s += `<line x1="70" y1="${H-26}" x2="${W-30}" y2="${H-26}" stroke="var(--line)"/></svg>`;
   return s;
 }
+// Snowfall line with frosted ice below and a small penguin walking right to left along it
+function iceBand(cm, h){
+  const v = cm < 10 ? cm.toFixed(1) : Math.round(cm);
+  return `<div class="iceband" style="height:${h}px" role="img" aria-label="${v} cm of snowfall">
+      <div class="pg-track" aria-hidden="true"><svg class="penguin" viewBox="0 0 40 48">
+        <ellipse class="pg-fa" cx="15" cy="46" rx="5" ry="2" fill="#F08A24"/>
+        <ellipse class="pg-fb" cx="24" cy="46" rx="5" ry="2" fill="#F08A24"/>
+        <g class="pg-body">
+          <ellipse cx="20" cy="26" rx="13" ry="19" fill="var(--pg-body)" stroke="var(--pg-edge)" stroke-width="1"/>
+          <ellipse cx="16.5" cy="30" rx="8.5" ry="13" fill="#FFFFFF"/>
+          <ellipse class="pg-wing" cx="28" cy="29" rx="3.6" ry="9" fill="var(--pg-body)" stroke="var(--pg-edge)" stroke-width="1"/>
+          <circle cx="14" cy="15" r="2.6" fill="#FFFFFF"/><circle cx="13.2" cy="15" r="1.25" fill="#151515"/>
+          <path d="M8.5 17 L1.5 19.2 L8.5 21.4 Z" fill="var(--yellow)"/>
+        </g>
+      </svg></div>
+      <div class="ice-val" aria-hidden="true"><b>${v}</b><small>cm</small><span>Snowfall</span></div>
+    </div>`;
+}
 const compass = d => ['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];
 function renderFocus(){
   const k = S.selected, day = S.days[k], dt = parseKey(k);
@@ -908,15 +953,17 @@ function renderFocus(){
   const dlH = Math.floor(day.daylight/3600), dlM = Math.round(day.daylight%3600/60);
   const uv = day.uv ?? 0, uvW = uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : 'Very high';
   const wind = Math.round(day.wind ?? 0), hist = day.src === 'hist', outlook = day.src === 'outlook';
+  const snowy = day.snow >= 0.1, band = Math.round(Math.min(56 + day.snow*4, 120));   // ice gets deeper with more snow
   const stat = (lbl, glyph, v, unit, sub, meter) => `<div class="stat"><div class="h"><span class="label">${lbl}</span>${glyph}</div><div class="v">${v}<small>${unit||''}</small></div>${meter ? `<div class="meter"><i style="width:${meter[0]}%;background:${meter[1]}"></i></div>` : ''}<div class="s">${sub}</div></div>`;
   const sq = c => `<i style="width:12px;height:12px;background:${c};display:block"></i>`, ci = c => `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:block"></i>`, tr = c => `<i style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid ${c};display:block"></i>`;
   $('#sheet').innerHTML = `
-    <section class="hero" style="background:var(--t-${tintOf(day)})">
+    <section class="hero${snowy ? ' has-snow' : ''}" style="background:var(--t-${tintOf(day)})${snowy ? `;--band:${band}px` : ''}">
       <div class="date"><span>${rel}</span>${dateStr}</div>
       <div class="art">${icon(day.c, true, day.sev)}</div>
       <div class="word">${dayWord(day)}</div>
       <div class="desc">${outlook ? `Ensemble outlook · ${day.pprob}% of ${day.runs} model runs bring rain` : (WMO[day.code] || '') + (hist ? ` · ${(day.psum ?? 0).toFixed(1)} mm recorded` : day.pprob ? ` · ${day.pprob}% chance of precipitation` : '')}</div>
       <div class="temps"><b>${outlook ? '≈' : ''}${T(day.tmax)}</b><span>${T(day.tmin)}</span></div>
+      ${snowy ? iceBand(day.snow, band) : ''}
     </section>
     <section class="detail">
       ${head}
