@@ -19,6 +19,7 @@
   --water-top:#6F98DA; --water-bottom:#2F5DB0; --water-glint:rgba(255,255,255,.55); --rain:rgba(31,79,168,.45); --fog:rgba(255,255,255,.72);
   --hero-ink:#151515; --shadow:0 30px 80px rgba(20,18,12,.18);
   --scrim:rgba(242,238,229,.72);
+  --glass:rgba(251,249,244,.66); --glass-edge:rgba(255,255,255,.7); --sheet-scrim:rgba(20,18,12,.32);
 }
 [data-theme="dark"]{
   --bg:#0F1013; --surface:#16171B; --ink:#EFEBE2; --muted:#8C8981; --faint:#5C5A55;
@@ -31,6 +32,7 @@
   --water-top:#24427A; --water-bottom:#162A52; --water-glint:rgba(200,220,255,.35); --rain:rgba(160,190,255,.45); --fog:rgba(190,198,212,.16);
   --hero-ink:#EFEBE2; --shadow:0 30px 80px rgba(0,0,0,.55);
   --scrim:rgba(10,11,13,.72);
+  --glass:rgba(32,33,38,.6); --glass-edge:rgba(255,255,255,.09); --sheet-scrim:rgba(0,0,0,.5);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -644,6 +646,114 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
   .fsel{width:100%}
   .fmenu{left:0;right:0;min-width:0}
 }
+/* New phone-only pieces stay hidden everywhere else */
+.tabbar,.scrim,.search-close,.sw-close{display:none}
+/* ===== Phone app UI (≤640px only): bottom nav, Home / Info tabs, bottom sheets ===== */
+@media (max-width:640px){
+  /* Sheet handle used on every bottom sheet */
+  .switcher::before,.search-open .search::before,.dhead::before,.psheet::before,.ssheet::before,.fmenu::before{content:"";position:absolute;top:7px;left:50%;width:40px;height:5px;margin-left:-20px;border-radius:3px;background:var(--faint);opacity:.75;z-index:3}
+  html.sheet-lock,html.search-open{overflow:hidden}
+
+  /* Bottom navigation island */
+  .tabbar{display:flex;position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;width:min(340px,calc(100% - 32px));height:64px;padding:6px;gap:4px;border-radius:999px;
+    background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);border:1px solid var(--glass-edge);box-shadow:0 12px 32px rgba(0,0,0,.16)}
+  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--muted);transition:background .2s,color .2s}
+  .tabbar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9}
+  .tabbar button[aria-current="page"]{color:var(--ink);background:var(--line)}
+  .app{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .scrim{display:block;position:fixed;inset:0;z-index:84;background:var(--sheet-scrim)}
+  .scrim[hidden]{display:none}
+
+  /* Tabs: Home = header, location, calendar · Info = sun/moon, next 7 days, legend */
+  .tab-home .sunarc,.tab-home .weekbox,.tab-home .legendbox{display:none}
+  .tab-info main,.tab-info .locbox,.tab-info #side .now,.tab-info #todayBtn,.tab-info .nav,.tab-info .month-title,.tab-info header::before{display:none}
+  .tab-info .sunarc{padding-top:16px}
+
+  /* Compact header: brand · search · units on one row, month navigation on the next */
+  header{gap:8px;padding:8px 16px}
+  .settings-btn{display:none}
+  .search{order:1;flex-basis:auto}
+  .search input{width:44px;height:44px;padding:0;border-radius:50%;color:transparent;caret-color:transparent;cursor:pointer}
+  .search input::placeholder{color:transparent}
+  .search>svg{left:14px;top:14px;stroke:var(--ink)}
+  .search .search-clear{display:none!important}
+  #todayBtn{height:40px}
+  .nav .icon-btn{width:40px;height:40px}
+
+  /* Compact location + now */
+  .locbox{padding:10px 16px 0;z-index:auto}
+  .locbox>.label{display:none}
+  .loc-row{margin-top:0;align-items:center}
+  .save-btn{height:34px}
+  #side .now{padding:6px 16px 12px;column-gap:12px}
+  #side .now .temp{font-size:44px}
+  #side .now .temp sup{font-size:20px;top:2px}
+  #side .now>div:nth-child(2){width:44px!important;height:44px!important}
+  #side .now .cond{font-size:14px}
+  #side .now .meta{font-size:12px}
+
+  /* Calendar: weekday row sticks while the days scroll */
+  .dow{position:sticky;top:0;z-index:6;background:var(--bg);border-top:1px solid var(--line)}
+
+  /* Search as a bottom sheet */
+  .search-open .search{position:fixed;left:0;right:0;top:max(6dvh,40px);bottom:0;z-index:85;display:flex;flex-direction:column;gap:12px;padding:64px 16px calc(16px + env(safe-area-inset-bottom,0px));background:var(--surface);border-radius:24px 24px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.2)}
+  .search-open .search input{width:100%;height:48px;border-radius:999px;padding:0 44px 0 42px;color:var(--ink);caret-color:auto;border:1px solid var(--line);background:var(--bg)}
+  .search-open .search input::placeholder{color:var(--muted)}
+  .search-open .search>svg{left:30px;top:80px;stroke:var(--muted)}
+  .search-open .search .search-clear:not([hidden]){display:grid!important;top:70px;right:20px;transform:none}
+  .search-open .search-close{display:grid;position:absolute;top:16px;right:12px}
+  .search-open .results{position:static;width:auto;flex:1;min-height:0;overflow:auto;border:0;border-radius:0;box-shadow:none;background:transparent}
+
+  /* Saved places as a bottom sheet */
+  .switcher{position:fixed;left:0;right:0;top:auto;bottom:0;z-index:85;display:flex;flex-direction:column;max-height:80dvh;border:0;border-radius:24px 24px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -12px 40px rgba(0,0,0,.2)}
+  .sw-h{position:relative;padding:30px 16px 10px;touch-action:none}
+  .sw-close{display:grid;position:absolute;top:16px;right:12px}
+  .sw-list{max-height:none;flex:1;min-height:0}
+
+  /* Day details, saved locations and settings as bottom sheets; close always top-right */
+  .focus{z-index:88;padding:0;align-items:end;justify-items:stretch}
+  .sheet,.psheet,.ssheet{width:100%;border-radius:24px 24px 0 0;transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+  .focus.open .sheet,.focus.open .psheet,.focus.open .ssheet{transform:none}
+  .sheet{height:auto;max-height:94dvh}
+  .dhead{padding:18px 12px 8px 16px;touch-action:none}
+  .psheet{position:relative;height:88dvh;max-height:none;padding:16px 12px 0}
+  .ph{touch-action:none;padding-top:8px}
+  .pgrid{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));grid-auto-rows:max-content}   /* rows fit their cards instead of squeezing to the sheet height */
+  .ssheet{position:relative;height:88dvh}
+  .snav{padding:24px 64px 10px 12px;touch-action:none;overflow:visible;gap:4px}
+  .snav button{flex:1;justify-content:center;gap:7px;padding:0 6px;font-size:14px;min-width:0}
+  .shead{padding-right:16px}
+  .shead .close{position:absolute;top:16px;right:12px}
+  .sscroll{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .fmenu{position:fixed;left:0;right:0;top:auto;bottom:0;z-index:5;min-width:0;max-height:70dvh;overflow:auto;padding:28px 8px calc(12px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;border:0;box-shadow:0 0 0 100vmax var(--sheet-scrim)}
+  .fopt{height:48px}
+
+  /* Day details: compact hero (icon beside the headline) */
+  .hero{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"date date" "art word" "art desc" "art temps";column-gap:16px;align-content:start;padding:16px 16px 20px}
+  .hero.has-scene{padding-bottom:calc(var(--band) + 66px)}
+  .hero .date{grid-area:date;margin-bottom:10px}
+  .hero .art{grid-area:art;padding:0;align-self:center}
+  .hero .art svg{width:104px;height:104px}
+  .hero .word{grid-area:word;font-size:30px;align-self:end}
+  .hero .desc{grid-area:desc;font-size:13px;margin-top:4px}
+  .hero .temps{grid-area:temps;margin-top:8px;gap:10px}
+  .hero .temps b{font-size:36px}
+  .hero .temps span{font-size:18px}
+
+  /* Saved locations: compact list cards */
+  .pcard{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top bt" "tags tags";min-height:0;padding:14px 14px 12px;gap:0 12px}
+  .pcard .top{grid-area:top;align-items:center}
+  .pcard .ic{width:40px;height:40px;margin:0}
+  .pcard .bt{grid-area:bt;margin-top:0;align-items:center;gap:10px}
+  .pcard .tp{font-size:40px}
+  .pcard .cd{display:none}
+  .pcard .tags{grid-area:tags;margin-top:10px;padding-top:10px}
+  .padd{min-height:72px;flex-direction:row}
+  .padd .plus{width:36px;height:36px}
+
+  /* Toasts sit above the navigation island */
+  .toast,.err{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+}
 /* Small phones */
 @media (max-width:380px){
   #todayBtn{padding:0 14px}
@@ -665,6 +775,7 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
     <div class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
       <input id="searchInput" placeholder="Search a city" autocomplete="off">
+      <button class="icon-btn close search-close" id="searchClose" type="button" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <button class="search-clear" id="searchClear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="results" id="results" hidden></div>
     </div>
@@ -681,6 +792,12 @@ svg text{font-family:var(--font,"Plus Jakarta Sans",sans-serif)}
 <div class="focus" id="focus" aria-modal="true" role="dialog"><div class="sheet" id="sheet"></div></div>
 <div class="focus" id="places" aria-modal="true" role="dialog" aria-label="Saved locations"><div class="psheet" id="psheet"></div></div>
 <div class="focus" id="settings" aria-modal="true" role="dialog" aria-label="Settings"><div class="ssheet" id="ssheet"></div></div>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="tabbar" id="tabbar" aria-label="Sections">
+  <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" stroke-linejoin="round"/></svg><span>Home</span></button>
+  <button data-tab="info" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg><span>Info</span></button>
+  <button data-tab="settings" aria-current="false"><svg viewBox="0 0 24 24" class="gear"><path d="M10.31 5.21 L10.50 2.52 L13.50 2.52 L13.69 5.21 A7.0 7.0 0 0 1 17.04 7.14L17.04 7.14 L19.46 5.96 L20.96 8.56 L18.73 10.07 A7.0 7.0 0 0 1 18.73 13.93L18.73 13.93 L20.96 15.44 L19.46 18.04 L17.04 16.86 A7.0 7.0 0 0 1 13.69 18.79L13.69 18.79 L13.50 21.48 L10.50 21.48 L10.31 18.79 A7.0 7.0 0 0 1 6.96 16.86L6.96 16.86 L4.54 18.04 L3.04 15.44 L5.27 13.93 A7.0 7.0 0 0 1 5.27 10.07L5.27 10.07 L3.04 8.56 L4.54 5.96 L6.96 7.14 A7.0 7.0 0 0 1 10.31 5.21 Z" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.8" stroke-width="2"/></svg><span>Settings</span></button>
+</nav>
 
 <script>
 (() => {
@@ -1113,6 +1230,7 @@ function renderSide(){
     else list.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });   // first open: show the current place
     $('#side .switcher').classList.toggle('scrolled', list.scrollTop > 0);
   }
+  syncScrim();
 }
 
 /* ---------- Focus view ---------- */
@@ -1392,6 +1510,7 @@ $('#results').addEventListener('click', ev => {
   if (sv){ const l = toLoc(lastResults[+sv.dataset.sv]); isSaved(l) ? unsaveLoc(l) : saveLoc(l); renderResults(); return; }
   const b = ev.target.closest('button[data-i]'); if(!b) return;
   $('#results').hidden = true; $('#searchInput').value = ''; syncClear();
+  closeSearchSheet();
   switchTo(toLoc(lastResults[+b.dataset.i]));
 });
 
@@ -1458,7 +1577,7 @@ function switcherHTML(){
       <span><span class="n">${active ? '<i></i>' : ''}${l.name}</span><small>${s ? `${s.time} · ${s.day ? 'Day' : 'Night'} · ${word(cat(s.code), s.day)}` : l.region}</small></span>
       <span class="tp">${s ? T(s.temp) : ''}</span></button>`; }).join('');
   return `<div class="switcher" role="listbox">
-    <div class="sw-h"><span class="label">Saved places</span></div>
+    <div class="sw-h"><span class="label">Saved places</span><button class="icon-btn close sw-close" data-sw-close aria-label="Close saved places"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     ${rows ? `<div class="sw-list">${rows}</div>` : `<div class="sw-empty">No saved places yet. Save the cities you check often to switch between them here.</div>`}
     <div class="sw-f"><button data-add>+ Add place</button><button data-open-places>Manage</button></div>
   </div>`;
@@ -1539,7 +1658,7 @@ function renderSettings(){
   S.stabKeep = tab;
 }
 function openSettings(tab){ S.switcher = false; renderSide(); S.stab = tab || S.stab || 'general'; S.stabKeep = null; renderSettings(); $('#settings').classList.add('open'); }
-function closeSettings(){ S.fontOpen = false; $('#settings').classList.remove('open'); }
+function closeSettings(){ S.fontOpen = false; $('#settings').classList.remove('open'); updateTabbar(); }
 function applySettings(){
   const h = document.documentElement;
   loadFont(S.set.font); h.style.setProperty('--font', FONTS[S.set.font][1]);
@@ -1562,7 +1681,7 @@ $('#ssheet').addEventListener('click', e => {
   const t = e.target;
   if (t.closest('#fontSel')){ S.fontOpen = !S.fontOpen; if (S.fontOpen) Object.keys(FONTS).forEach(loadFont); renderSettings(); return; }   // previews need every face
   const fo = t.closest('[data-font]'); if (fo){ S.fontOpen = false; S.set.fontPicked = true; return setOption('font', fo.dataset.font); }
-  if (S.fontOpen && !t.closest('.fmenu')){ S.fontOpen = false; renderSettings(); }
+  if (S.fontOpen && !t.closest('.fmenu')){ S.fontOpen = false; renderSettings(); if (isPhone()) return; }   // on phones a tap on the dimmed area only closes the sheet
   const tb = t.closest('[data-stab]'); if (tb){ S.stab = tb.dataset.stab; renderSettings(); return; }
   if (t.closest('[data-close-settings]')) return closeSettings();
   const sw = t.closest('.switch[data-set]'); if (sw) return setOption(sw.dataset.set, !S.set[sw.dataset.set]);
@@ -1596,6 +1715,7 @@ function renderPlaces(){
 }
 document.addEventListener('click', e => {
   const t = e.target;
+  if (t.closest('[data-sw-close]')) { S.switcher = false; renderSide(); return; }
   if (t.closest('#locSwitch')) { S.switcher = !S.switcher; renderSide(); return; }
   if (t.closest('[data-save]')) { isSaved(S.loc) ? unsaveLoc(S.loc) : saveLoc(S.loc); return; }
   const rm = t.closest('[data-rm]'); if (rm) { unsaveLoc(S.saved[+rm.dataset.rm]); return; }
@@ -1620,6 +1740,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('[data-close]') || e.target.id === 'focus') closeFocus();
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.searchOpen){ closeSearchSheet(); return; }
   if (e.key === 'Escape' && S.fontOpen){ S.fontOpen = false; renderSettings(); $('#fontSel')?.focus(); return; }
   if (e.key === 'Escape' && $('#settings').classList.contains('open')) return closeSettings();
   if (e.key === 'Escape' && $('#places').classList.contains('open')) return closePlaces();
@@ -1634,6 +1755,70 @@ function toast(msg){ document.querySelector('.toast')?.remove(); const t = docum
 // Live: re-check theme each minute, refresh data every 15 minutes
 setInterval(() => { if (S.data) { applyTheme(); renderSide(); } }, 60*1000);
 setInterval(() => { if (S.loc && !SNAP) load(S.loc); }, 15*60*1000);
+
+/* ---------- Phone app UI: tabs, sheets, scrim, drag to dismiss (only active at ≤640px) ---------- */
+function isPhone(){ return matchMedia('(max-width:640px)').matches; }
+if (isPhone()){ const vp = document.querySelector('meta[name="viewport"]'); if (vp && !vp.content.includes('viewport-fit')) vp.content += ', viewport-fit=cover'; }
+function syncScrim(){ const s = $('#scrim'); if (s) s.hidden = !(isPhone() && (S.switcher || S.searchOpen)); }
+function updateTabbar(){
+  const settingsOpen = $('#settings').classList.contains('open');
+  document.querySelectorAll('#tabbar [data-tab]').forEach(b => b.setAttribute('aria-current', (settingsOpen ? b.dataset.tab === 'settings' : b.dataset.tab === S.tab) ? 'page' : 'false'));
+}
+function setTab(t, scroll = true){
+  S.tab = t; const h = document.documentElement;
+  h.classList.toggle('tab-info', t === 'info'); h.classList.toggle('tab-home', t !== 'info');
+  if (t === 'info' && S.switcher){ S.switcher = false; renderSide(); }
+  updateTabbar(); if (scroll) window.scrollTo(0, 0);
+}
+$('#tabbar').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  if (b.dataset.tab === 'settings'){ openSettings(); updateTabbar(); return; }
+  if ($('#settings').classList.contains('open')) closeSettings();
+  if (b.dataset.tab === S.tab) window.scrollTo({ top: 0, behavior: 'smooth' }); else setTab(b.dataset.tab);
+});
+setTab('home', false);
+function openSearchSheet(){
+  if (!isPhone() || S.searchOpen) return;
+  S.searchOpen = true; if (S.switcher){ S.switcher = false; renderSide(); }
+  document.documentElement.classList.add('search-open'); syncScrim();
+}
+function closeSearchSheet(){
+  if (!S.searchOpen) return;
+  S.searchOpen = false; document.documentElement.classList.remove('search-open');
+  clearTimeout(st); $('#searchInput').value = ''; lastResults = []; $('#results').hidden = true; syncClear(); $('#searchInput').blur(); syncScrim();
+}
+$('#searchInput').addEventListener('focus', openSearchSheet);
+$('#searchClose').addEventListener('click', closeSearchSheet);
+$('#scrim').addEventListener('click', () => { if (S.searchOpen) closeSearchSheet(); else if (S.switcher){ S.switcher = false; renderSide(); } });
+// lock page scroll behind the big sheets
+new MutationObserver(() => document.documentElement.classList.toggle('sheet-lock', isPhone() && !!document.querySelector('.focus.open')))
+  .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+// Drag a sheet's top bar down to dismiss it
+(() => {
+  const GRIPS = '.sheet .dhead, .psheet .ph, .ssheet .snav, .switcher .sw-h, .search-open .search';
+  let drag = null;
+  document.addEventListener('pointerdown', e => {
+    if (!isPhone() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const grip = e.target.closest(GRIPS); if (!grip) return;
+    if (grip.matches('.search') && e.target.closest('input,.results,button')) return;     // typing / scrolling results still works
+    drag = { sheet: grip.closest('.sheet,.psheet,.ssheet,.switcher,.search'), y: e.clientY, dy: 0, id: e.pointerId };
+  });
+  document.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.dy = Math.max(0, e.clientY - drag.y);
+    if (drag.dy > 6){ drag.sheet.style.transition = 'none'; drag.sheet.style.transform = `translateY(${drag.dy}px)`; }
+  });
+  const end = () => {
+    if (!drag) return; const { sheet, dy } = drag; drag = null;
+    sheet.style.transition = ''; sheet.style.transform = '';
+    if (dy <= 110) return;
+    if (sheet.matches('.sheet')) closeFocus(); else if (sheet.matches('.psheet')) closePlaces();
+    else if (sheet.matches('.ssheet')) closeSettings(); else if (sheet.matches('.switcher')){ S.switcher = false; renderSide(); }
+    else closeSearchSheet();
+  };
+  document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
+})();
+matchMedia('(max-width:640px)').addEventListener?.('change', () => { if (!isPhone()){ closeSearchSheet(); document.documentElement.classList.remove('sheet-lock'); } syncScrim(); });
 
 applyTheme();
 locate().then(async () => {
