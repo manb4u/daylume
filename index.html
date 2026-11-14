@@ -201,7 +201,6 @@ main{display:flex;flex-direction:column;min-width:0;padding:0 0 0 0}
   .penguin .pw-body{transform-origin:31px 54px;animation:pg-waddle .75s ease-in-out infinite alternate}
   .penguin .pw-fa{animation:pg-step .75s ease-in-out infinite alternate}
   .penguin .pw-fb{animation:pg-step .75s ease-in-out -.75s infinite alternate}
-  .penguin .bd-blanket{transform-origin:47px 50px;animation:pg-breathe 3.6s ease-in-out infinite}
   .penguin .zz{animation:pg-zz 3.6s ease-out infinite}
   .penguin .zz.z2{animation-delay:-1.2s}
   .penguin .zz.z3{animation-delay:-2.4s}
@@ -1053,7 +1052,7 @@ const PG_SKIER = `<svg class="penguin skier" viewBox="0 0 64 56">
           </g>
         </g>
       </svg>`;
-// Cloudy: asleep in bed under a red blanket, nightcap on, Zzz drifting up
+// Cloudy: the sunbathing penguin, asleep on the bed with Zzz drifting up
 const zz = (cls) => `<g transform="translate(27 17)"><path class="zz ${cls}" d="M0 0 H6 L0 7 H6" fill="none" stroke="var(--hero-ink)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></g>`;
 const PG_BED = `<svg class="penguin bed" viewBox="0 0 80 56">
     <rect x="6" y="49" width="3" height="5" fill="#3B3D44"/><rect x="71" y="49" width="3" height="5" fill="#3B3D44"/>
@@ -1061,14 +1060,13 @@ const PG_BED = `<svg class="penguin bed" viewBox="0 0 80 56">
     <rect x="69" y="34" width="7" height="16" rx="3" fill="var(--blue)"/>
     <rect x="9" y="40" width="62" height="10" fill="#F2EEE5"/>
     <rect x="11" y="31" width="17" height="9.5" rx="4.75" fill="#FFFFFF" stroke="rgba(0,0,0,.08)"/>
-    <circle cx="21" cy="30" r="7" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
-    <path d="M19.4 27.4 q1.7 1.4 3.4 -0.4" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round"/>
-    <path d="M22.2 23.1 L28 17.9 L26.4 25.5 Z" fill="var(--yellow)"/>
-    <g class="bd-blanket">
-      <path d="M24 40.5 Q30 31.5 44 32.5 Q60 33.5 70 40.5 L70 50 L24 50 Z" fill="var(--red)"/>
-      <path d="M24 41 Q30 33.6 44 34.4 Q31 36.8 27 42 Z" fill="rgba(255,255,255,.3)"/>
-      <ellipse cx="41" cy="37.5" rx="2.6" ry="6" transform="rotate(78 41 37.5)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
-    </g>
+    <g class="pb-feet" style="transform-origin:55px 39.5px"><ellipse cx="57.5" cy="35" rx="2.2" ry="5" transform="rotate(25 57.5 35)" fill="#F08A24"/><ellipse cx="53.5" cy="34" rx="2.2" ry="5" transform="rotate(-8 53.5 34)" fill="#F08A24"/></g>
+    <g class="pb-breathe" style="transform-origin:39px 40px"><path d="M22 40 A17 13 0 0 1 56 40 Z" fill="var(--pg-body)" stroke="var(--pg-edge)"/><path d="M26 40 A13 9.5 0 0 1 52 40 Z" fill="#FFFFFF"/></g>
+    <ellipse cx="27.5" cy="31.5" rx="3.2" ry="7" transform="rotate(-62 27.5 31.5)" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+    <circle cx="20" cy="33.5" r="7" fill="var(--pg-body)" stroke="var(--pg-edge)"/>
+    <path d="M16.6 27.9 L15.4 20.9 L20.4 26.7 Z" fill="var(--yellow)"/>
+    <rect x="13" y="30.7" width="13.5" height="1.4" fill="#151515"/><circle cx="16.6" cy="32.9" r="2.6" fill="#151515"/><circle cx="22.6" cy="32.9" r="2.6" fill="#151515"/>
+    <rect class="pb-glint" x="15.2" y="31.4" width="1.3" height="2.6" fill="#FFFFFF" opacity="0"/>
     ${zz('z1')}${zz('z2')}${zz('z3')}
   </svg>`;
 // Rain: sitting in a little boat under an umbrella, drifting right to left on the water
@@ -1148,7 +1146,7 @@ function scene(day){
     snow:  { h: deep(cm*4),  g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Snow'), actor: PG_SKIER, aria: cm >= 0.1 ? `${fcm} cm of snowfall` : 'Snow' },
     sleet: { h: 64,          g:'ice',   lab: cm >= 0.1 ? val(fcm, 'cm', 'Snowfall') : val(fmm, 'mm', 'Sleet'), actor: PG_JACKET, aria: 'Sleet, frost on the ground' },
     beach: { h: 64,          g:'sand',  lab: day.uv != null ? val(Math.round(day.uv), '', 'UV index') : val(Math.round(day.daylight/3600), 'h', 'Daylight'), actor: PG_BEACH, aria: 'Sunny beach' },
-    sleep: { h: 60,          g:'floor', lab: val(wind, 'km/h', 'Wind'), actor: PG_BED, aria: 'Cloudy day, penguin asleep in bed' },
+    sleep: { h: 60,          g:'floor', lab: val(wind, 'km/h', 'Wind'), actor: PG_BED, aria: 'Cloudy day, penguin asleep on the bed' },
     fog:   { h: 60,          g:'road',  lab: val(wind, 'km/h', 'Wind'), actor: PG_CAR, aria: 'Foggy road',
              fx: `<div class="fx fx-fog" aria-hidden="true"><i style="top:34%;--d:34s"></i><i style="top:56%;--d:24s"></i><i style="top:74%;--d:42s"></i></div>` },
     rain:  { h: deep(Math.min(mm*3, 54)), g:'water', lab: val(fmm, 'mm', 'Rain'), actor: PG_BOAT, aria: `Rain, ${fmm} mm`, rip: true,
